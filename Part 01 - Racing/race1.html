@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>race1</title>
+  <script src="../../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+.hidden {
+  display: none;
+}
+#original {
+  margin-left: 1em;
+}
+  </style>
+</head>
+
+<body>
+<section id="imageLoader" class="hidden">
+  <img class="hidden" src="images/barrier.png" alt="barrier" data-name="barrier">
+  <img class="hidden" src="images/cflag.png" alt="cflag" data-name="cflag">
+  <img class="hidden" src="images/racecar.png" alt="racecar" data-name="racecar">
+  <img class="hidden" src="images/rflag.png" alt="rflag" data-name="rflag">
+</section>
+
+<main>
+<h1>race1</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<h2>Attribution</h2>
+
+<p><a href="https://magpi.raspberrypi.com/books/retro-gaming-raspberry-pi-2nd-edition">Retro Gaming with Raspberry Pi 2nd Edition, pages 78 - 83</a>.</p>
+
+<p><a href="https://magpi.raspberrypi.com/books/retro-gaming">Retro Gaming with Raspberry Pi, pages 48 - 53</a>.</p>
+
+<p>Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</a>.</p>
+
+<h2>Original Python code</h2>
+
+<pre id="original"><code>
+from random import randint
+import pgzrun
+
+WIDTH = 700 # Width of window
+HEIGHT = 800 # Height of window
+car = Actor(&quot;racecar&quot;) # Load in the car Actor image
+car.pos = 250, 700 # Set the car screen position
+SPEED = 4
+trackCount = 0
+trackPosition = 250
+trackWidth = 120
+trackDirection = False
+trackLeft = []  # list of track barriers left
+trackRight = []  # list of track barriers right
+gameStatus = 0
+
+def draw(): # Pygame Zero draw function
+    global gameStatus
+    screen.fill((128, 128, 128))
+    if gameStatus == 0:
+        car.draw()
+        b = 0
+        while b &lt; len(trackLeft):
+            trackLeft[b].draw()
+            trackRight[b].draw()
+            b += 1
+    if gameStatus == 1:
+        # Red Flag
+        screen.blit(&#x27;rflag&#x27;, (318, 268))
+    if gameStatus == 2:
+        # Chequered Flag
+        screen.blit(&#x27;cflag&#x27;, (318, 268))
+
+def update(): # Pygame Zero update function
+    global gameStatus , trackCount
+    if gameStatus == 0:
+        if keyboard.left: car.x -= 2
+        if keyboard.right: car.x += 2
+        updateTrack()
+    if trackCount &gt; 200: gameStatus = 2 # Chequered flag state
+
+def makeTrack(): # Function to make a new section of track
+    global trackCount, trackLeft, trackRight, trackPosition, trackWidth
+    trackLeft.append(Actor(&quot;barrier&quot;, pos = (trackPosition-trackWidth,0)))
+    trackRight.append(Actor(&quot;barrier&quot;, pos = (trackPosition+trackWidth,0)))
+    trackCount += 1
+
+def updateTrack(): # Function to update where the track blocks appear
+    global trackCount, trackPosition, trackDirection, trackWidth, gameStatus
+    b = 0
+    while b &lt; len(trackLeft):
+        if car.colliderect(trackLeft[b]) or car.colliderect(trackRight[b]):
+            gameStatus = 1  # Red flag state
+        trackLeft[b].y += SPEED
+        trackRight[b].y += SPEED
+        b += 1
+    if trackLeft[len(trackLeft)-1].y &gt; 32:
+        if trackDirection == False: trackPosition += 16
+        if trackDirection == True: trackPosition -= 16
+        if randint(0, 4) == 1: trackDirection = not trackDirection
+        if trackPosition &gt; 700-trackWidth: trackDirection = True
+        if trackPosition &lt; trackWidth: trackDirection = False
+        makeTrack()
+
+# End of functions
+makeTrack() # Make first block of track
+
+pgzrun.go()
+</code></pre>
+</main>
+
+<script>
+WIDTH = 700; // Width of window
+HEIGHT = 800; // Height of window
+
+const SPEED = 4;
+const TRACK_WIDTH = 120;
+
+/*
+ * Return a random integer N such that min <= N < max.
+ */
+function getRandomInteger(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor((Math.random() * (max - min)) + min);
+}
+
+var car, trackCount, trackPosition, trackDirection, trackLeft, trackRight, gameStatus;
+
+function reset() {
+  car = new Actor("racecar"); // Load in the car Actor image
+  car.pos = [250, 700]; // Set the car screen position
+  trackCount = 0;
+  trackPosition = 250;
+  trackDirection = false;
+  trackLeft = [];  // list of track barriers left
+  trackRight = [];  // list of track barriers right
+  gameStatus = 0;
+
+  makeTrack(); // Make first block of track
+}
+
+function draw() { // Pygame Zero draw function
+  screen.fill([128, 128, 128]);
+  if (gameStatus === 0) {
+    car.draw();
+    let b = 0;
+    while (b < trackLeft.length) {
+      trackLeft[b].draw();
+      trackRight[b].draw();
+      b += 1;
+    }
+  }
+  if (gameStatus === 1) {
+    // Red Flag
+    screen.blit('rflag', [318, 268]);
+  }
+  if (gameStatus === 2) {
+    // Chequered Flag
+    screen.blit('cflag', [318, 268]);
+  }
+}
+
+function update() { // Pygame Zero update function
+  if (gameStatus === 0) {
+    if (keyboard[keys.LEFT]) {
+      car.posx -= 2;
+    }
+    if (keyboard[keys.RIGHT]) {
+      car.posx += 2;
+    }
+    updateTrack();
+  }
+  if (trackCount > 200) {
+    gameStatus = 2; // Chequered flag state
+  }
+}
+
+function makeTrack() { // Function to make a new section of track
+  let barrier = new Actor("barrier");
+  barrier.pos = [trackPosition - TRACK_WIDTH, 0];
+  trackLeft.push(barrier);
+  barrier = new Actor("barrier");
+  barrier.pos = [trackPosition + TRACK_WIDTH, 0];
+  trackRight.push(barrier);
+  trackCount += 1;
+}
+
+function updateTrack() { // Function to update where the track blocks appear
+  let b = 0;
+  while (b < trackLeft.length) {
+    if (car.colliderect(trackLeft[b]) || car.colliderect(trackRight[b])) {
+      gameStatus = 1;  // Red flag state
+    }
+    trackLeft[b].posy += SPEED;
+    trackRight[b].posy += SPEED;
+    b += 1;
+  }
+  if (trackLeft[trackLeft.length-1].posy > 32) {
+    if (!trackDirection) {
+      trackPosition += 16;
+    }
+    if (trackDirection) {
+      trackPosition -= 16;
+    }
+    if (getRandomInteger(0, 5) === 1) {
+      trackDirection = !trackDirection;
+    }
+    if (trackPosition > (700 - TRACK_WIDTH)) {
+      trackDirection = true;
+    }
+    if (trackPosition < TRACK_WIDTH) {
+      trackDirection = false;
+    }
+    makeTrack();
+  }
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
