@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>brian</title>
+  <script src="../../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+.hidden {
+  display: none;
+}
+#original {
+  margin-left: 1em;
+}
+  </style>
+</head>
+
+<body>
+<section id="imageLoader" class="hidden">
+  <img class="hidden" src="images/bluelit.png" alt="bluelit" data-name="bluelit">
+  <img class="hidden" src="images/blueunlit.png" alt="blueunlit" data-name="blueunlit">
+  <img class="hidden" src="images/greenlit.png" alt="greenlit" data-name="greenlit">
+  <img class="hidden" src="images/greenunlit.png" alt="greenunlit" data-name="greenunlit">
+  <img class="hidden" src="images/play.png" alt="play" data-name="play">
+  <img class="hidden" src="images/redlit.png" alt="redlit" data-name="redlit">
+  <img class="hidden" src="images/redunlit.png" alt="redunlit" data-name="redunlit">
+  <img class="hidden" src="images/yellowlit.png" alt="yellowlit" data-name="yellowlit">
+  <img class="hidden" src="images/yellowunlit.png" alt="yellowunlit" data-name="yellowunlit">
+</section>
+
+<main>
+<h1>brian</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<h2>Attribution</h2>
+
+<p><a href="https://magpi.raspberrypi.com/books/retro-gaming-raspberry-pi-2nd-edition">Retro Gaming with Raspberry Pi 2nd Edition, pages 84 - 89</a>.</p>
+
+<p><a href="https://magpi.raspberrypi.com/books/retro-gaming">Retro Gaming with Raspberry Pi, pages 54 - 59</a>.</p>
+
+<p>Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</a>.</p>
+
+<h2>Original Python code</h2>
+
+<pre id="original"><code>
+import pgzrun
+from random import randint
+import math
+WIDTH = 800
+HEIGHT = 600
+
+myButtons = []
+myButtons.append(Actor(&#x27;redunlit&#x27;, bottomright=(400,270)))
+myButtons[0].state = False
+myButtons.append(Actor(&#x27;greenunlit&#x27;,bottomleft=(400,270)))
+myButtons[1].state = False
+myButtons.append(Actor(&#x27;blueunlit&#x27;,topright=(400,270)))
+myButtons[2].state = False
+myButtons.append(Actor(&#x27;yellowunlit&#x27;,topleft=(400,270)))
+myButtons[3].state = False
+buttonsLit = [&#x27;redlit&#x27;, &#x27;greenlit&#x27;, &#x27;bluelit&#x27;, &#x27;yellowlit&#x27;]
+buttonsUnlit = [&#x27;redunlit&#x27;, &#x27;greenunlit&#x27;, &#x27;blueunlit&#x27;, &#x27;yellowunlit&#x27;]
+playButton = Actor(&#x27;play&#x27;, pos=(400,540))
+buttonList = []
+playPosition = 0
+playingAnimation = False
+gameCountdown = -1
+LOOPDELAY = 80
+score = 0
+playerInput = []
+signalScore = False
+gameStarted = False
+
+def draw(): # Pygame Zero draw function
+    global playingAnimation, score
+    screen.fill((30, 10, 30))
+    for b in myButtons: b.draw()
+    if gameStarted:
+        screen.draw.text(&quot;Score : &quot; + str(score), (310, 540), owidth=0.5, ocolor=(255,255,255), color=(255,128,0) , fontsize=60)
+    else:
+        playButton.draw()
+        screen.draw.text(&quot;Play&quot;, (370, 525), owidth=0.5, ocolor=(255,255,255), color=(255,128,0) , fontsize=40)
+        if score &gt; 0:
+            screen.draw.text(&quot;Final Score : &quot; + str(score), (250, 20), owidth=0.5, ocolor=(255,255,255), color=(255,128,0) , fontsize=60)
+        else:
+            screen.draw.text(&quot;Press Play to Start&quot;, (220, 20), owidth=0.5, ocolor=(255,255,255), color=(255,128,0) , fontsize=60)
+    if playingAnimation or gameCountdown &gt; 0:
+        screen.draw.text(&quot;Watch&quot;, (330, 20), owidth=0.5, ocolor=(255,255,255), color=(255,128,0) , fontsize=60)
+    if not playingAnimation and gameCountdown == 0:
+        screen.draw.text(&quot;Now You&quot;, (310, 20), owidth=0.5, ocolor=(255,255,255), color=(255,128,0) , fontsize=60)
+
+def update(): # Pygame Zero update function
+    global myButtons, playingAnimation, playPosition, gameCountdown
+    if playingAnimation:
+        playPosition += 1
+        listpos = math.floor(playPosition/LOOPDELAY)
+        if listpos == len(buttonList):
+            playingAnimation = False
+            clearButtons()
+        else:
+            litButton = buttonList[listpos]
+            if playPosition%LOOPDELAY &gt; LOOPDELAY/2: litButton = -1
+            bcount = 0
+            for b in myButtons:
+                if litButton == bcount: b.state = True
+                else: b.state = False
+                bcount += 1
+    bcount = 0
+    for b in myButtons:
+        if b.state == True: b.image = buttonsLit[bcount]
+        else: b.image = buttonsUnlit[bcount]
+        bcount += 1
+    if gameCountdown &gt; 0:
+        gameCountdown -=1
+        if gameCountdown == 0:
+            addButton()
+            playerInput.clear()
+
+def gameOver():
+    global gameStarted, gameCountdown, playerInput, buttonList
+    gameStarted = False
+    gameCountdown = -1
+    playerInput.clear()
+    buttonList.clear()
+    clearButtons()
+
+def checkPlayerInput():
+    global playerInput, gameStarted, score, buttonList, gameCountdown, signalScore
+    ui = 0
+    while ui &lt; len(playerInput):
+        if playerInput[ui] != buttonList[ui]: gameOver()
+        ui += 1
+    if ui == len(buttonList): signalScore = True
+
+def on_mouse_down(pos):
+    global myButtons, playingAnimation, gameCountdown, playerInput
+    if not playingAnimation and gameCountdown == 0:
+        bcount = 0
+        for b in myButtons:
+            if b.collidepoint(pos):
+                playerInput.append(bcount)
+                b.state = True
+            bcount += 1
+        checkPlayerInput()
+
+def on_mouse_up(pos):
+    global myButtons, gameStarted, gameCountdown, signalScore, score
+    if not playingAnimation and gameCountdown == 0:
+        for b in myButtons: b.state = False
+    if playButton.collidepoint(pos) and gameStarted == False:
+        gameStarted = True
+        score = 0
+        gameCountdown = LOOPDELAY
+    if signalScore:
+        score += 1
+        gameCountdown = LOOPDELAY
+        clearButtons()
+        signalScore = False
+
+def clearButtons():
+    global myButtons
+    for b in myButtons: b.state = False
+
+def playAnimation():
+    global playPosition, playingAnimation
+    playPosition = 0
+    playingAnimation = True
+
+def addButton():
+    global buttonList
+    buttonList.append(randint(0, 3))
+    playAnimation()
+
+pgzrun.go()
+</code></pre>
+</main>
+
+<script>
+WIDTH = 800;
+HEIGHT = 600;
+
+const BUTTONS_LIT = ['redlit', 'greenlit', 'bluelit', 'yellowlit'];
+const BUTTONS_UNLIT = ['redunlit', 'greenunlit', 'blueunlit', 'yellowunlit'];
+const LOOPDELAY = 80;
+
+/*
+ * Return a random integer N such that min <= N < max.
+ */
+function getRandomInteger(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor((Math.random() * (max - min)) + min);
+}
+
+var myButtons, playButton, buttonList, playPosition, playingAnimation, gameCountdown, score, playerInput, signalScore, gameStarted;
+
+function reset() {
+  myButtons = [];
+  let button = new Actor('redunlit');
+  button.bottomright = [400, 270];
+  button.state = false;
+  myButtons.push(button);
+  button = new Actor('greenunlit');
+  button.bottomleft = [400, 270];
+  button.state = false;
+  myButtons.push(button);
+  button = new Actor('blueunlit');
+  button.topright = [400, 270];
+  button.state = false;
+  myButtons.push(button);
+  button = new Actor('yellowunlit');
+  button.topleft = [400, 270];
+  button.state = false;
+  myButtons.push(button);
+  playButton = new Actor('play');
+  playButton.pos = [400, 540];
+  buttonList = [];
+  playPosition = 0;
+  playingAnimation = false;
+  gameCountdown = -1;
+  score = 0;
+  playerInput = [];
+  signalScore = false;
+  gameStarted = false;
+}
+
+function draw() { // Pygame Zero draw function
+  screen.fill([30, 10, 30]);
+  for (let b of myButtons) {
+    b.draw();
+  }
+  if (gameStarted) {
+    screen.draw.text("Score : " + score, {
+      pos: [310, 540],
+      owidth: 0.5,
+      ocolor: [255, 255, 255],
+      color: [255, 128, 0],
+      fontsize: 60
+    });
+  }
+  else {
+    playButton.draw();
+    screen.draw.text("Play", {
+      pos: [370, 525],
+      owidth: 0.5,
+      ocolor: [255, 255, 255],
+      color: [255, 128, 0],
+      fontsize: 40
+    });
+    if (score > 0) {
+      screen.draw.text("Final Score : " + score, {
+        pos: [250, 20],
+        owidth: 0.5,
+        ocolor: [255, 255, 255],
+        color: [255, 128, 0],
+        fontsize: 60
+      });
+    }
+    else {
+      screen.draw.text("Press Play to Start", {
+        pos: [220, 20],
+        owidth: 0.5,
+        ocolor: [255, 255, 255],
+        color: [255, 128, 0],
+        fontsize: 60
+      });
+    }
+  }
+  if (playingAnimation || (gameCountdown > 0)) {
+    screen.draw.text("Watch", {
+      pos: [330, 20],
+      owidth: 0.5,
+      ocolor: [255, 255, 255],
+      color: [255, 128, 0],
+      fontsize: 60
+    });
+  }
+  if ((!playingAnimation) && (gameCountdown === 0)) {
+    screen.draw.text("Now You", {
+      pos: [310, 20],
+      owidth: 0.5,
+      ocolor: [255, 255, 255],
+      color: [255, 128, 0],
+      fontsize: 60
+    });
+  }
+}
+
+function update() { // Pygame Zero update function
+  let bcount = 0;
+  if (playingAnimation) {
+    playPosition += 1;
+    let listpos = Math.floor(playPosition / LOOPDELAY),
+        litButton;
+    if (listpos === buttonList.length) {
+      playingAnimation = false;
+      clearButtons();
+    }
+    else {
+      litButton = buttonList[listpos];
+      if ((playPosition % LOOPDELAY) > (LOOPDELAY / 2)) {
+        litButton = -1;
+      }
+      bcount = 0;
+      for (let b of myButtons) {
+        if (litButton === bcount) {
+          b.state = true;
+        }
+        else {
+          b.state = false;
+        }
+        bcount += 1;
+      }
+    }
+  }
+  bcount = 0;
+  for (let b of myButtons) {
+    if (b.state) {
+      b.name = BUTTONS_LIT[bcount];
+    }
+    else {
+      b.name = BUTTONS_UNLIT[bcount];
+    }
+    bcount += 1;
+  }
+  if (gameCountdown > 0) {
+    gameCountdown -= 1;
+    if (gameCountdown === 0) {
+      addButton();
+      playerInput = [];
+    }
+  }
+}
+
+function gameOver() {
+  gameStarted = false;
+  gameCountdown = -1;
+  playerInput = [];
+  buttonList = [];
+  clearButtons();
+}
+
+function checkPlayerInput() {
+  let ui = 0;
+  while (ui < playerInput.length) {
+    if (playerInput[ui] !== buttonList[ui]) {
+      gameOver();
+    }
+    ui += 1;
+  }
+  if (ui === buttonList.length) {
+    signalScore = true;
+  }
+}
+
+function on_mouse_down(pos) {
+  if ((!playingAnimation) && (gameCountdown === 0)) {
+    let bcount = 0;
+    for (let b of myButtons) {
+      if (b.collidepoint(pos)) {
+        playerInput.push(bcount);
+        b.state = true;
+      }
+      bcount += 1;
+    }
+    checkPlayerInput();
+  }
+}
+
+function on_mouse_up(pos) {
+  if ((!playingAnimation) && (gameCountdown === 0)) {
+    for (let b of myButtons) {
+      b.state = false;
+    }
+  }
+  if (playButton.collidepoint(pos) && (!gameStarted)) {
+    gameStarted = true;
+    score = 0;
+    gameCountdown = LOOPDELAY;
+  }
+  if (signalScore) {
+    score += 1;
+    gameCountdown = LOOPDELAY;
+    clearButtons();
+    signalScore = false;
+  }
+}
+
+function clearButtons() {
+  for (let b of myButtons) {
+    b.state = false;
+  }
+}
+
+function playAnimation() {
+  playPosition = 0;
+  playingAnimation = true;
+}
+
+function addButton() {
+  buttonList.push(getRandomInteger(0, 4));
+  playAnimation();
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
