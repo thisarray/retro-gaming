@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>scrambledcat</title>
+  <script src="../../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+.hidden {
+  display: none;
+}
+#original {
+  margin-left: 1em;
+}
+  </style>
+</head>
+
+<body>
+<section id="imageLoader" class="hidden">
+  <img class="hidden" src="images/board.png" alt="board" data-name="board">
+  <img class="hidden" src="images/img0.png" alt="img0" data-name="img0">
+  <img class="hidden" src="images/img1.png" alt="img1" data-name="img1">
+  <img class="hidden" src="images/img10.png" alt="img10" data-name="img10">
+  <img class="hidden" src="images/img11.png" alt="img11" data-name="img11">
+  <img class="hidden" src="images/img12.png" alt="img12" data-name="img12">
+  <img class="hidden" src="images/img13.png" alt="img13" data-name="img13">
+  <img class="hidden" src="images/img14.png" alt="img14" data-name="img14">
+  <img class="hidden" src="images/img2.png" alt="img2" data-name="img2">
+  <img class="hidden" src="images/img3.png" alt="img3" data-name="img3">
+  <img class="hidden" src="images/img4.png" alt="img4" data-name="img4">
+  <img class="hidden" src="images/img5.png" alt="img5" data-name="img5">
+  <img class="hidden" src="images/img6.png" alt="img6" data-name="img6">
+  <img class="hidden" src="images/img7.png" alt="img7" data-name="img7">
+  <img class="hidden" src="images/img8.png" alt="img8" data-name="img8">
+  <img class="hidden" src="images/img9.png" alt="img9" data-name="img9">
+</section>
+
+<main>
+<h1>scrambledcat</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<h2>Attribution</h2>
+
+<p><a href="https://magpi.raspberrypi.com/books/retro-gaming">Retro Gaming with Raspberry Pi, pages 60 - 65</a>.</p>
+
+<p>Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</a>.</p>
+
+<h2>Original Python code</h2>
+
+<pre id="original"><code>
+import pgzrun
+WIDTH = 800
+HEIGHT = 600
+gameStatus = 0
+tileList = []
+correctList = []
+scrambleCountdown = 30
+scrambleList = [2, 0, 2, 0, 3, 1, 1, 1, 3, 0, 0, 2, 1, 2, 1, 3, 3, 0, 3, 0, 2, 0, 2, 2, 1, 3, 1, 3, 3, 1, 2]
+
+def draw(): # Pygame Zero draw function
+    global gameStatus
+    screen.fill((141, 172, 242))
+    screen.blit(&#x27;board&#x27;, (150, 50))
+    for t in range(15):
+        tileList[t].draw()
+    if (gameStatus == 3): screen.draw.text(&quot;Success!&quot; , (315, 20), owidth=0.5, ocolor=(255,255,255), color=(128,64,0) , fontsize=60)
+    if (gameStatus == 2): screen.draw.text(&quot;Please wait while we scramble the cat&quot;, (135, 540), owidth=0.5, ocolor=(255,255,255), color=(128,64,0) , fontsize=40)
+    if (gameStatus &lt;= 1): screen.draw.text(&quot;Click on a tile to move it or use the arrow keys&quot;, (95, 540), owidth=0.5, ocolor=(255,255,255), color=(128,64,0) , fontsize=40)
+
+def update(): # Pygame Zero update function
+    if (gameStatus == 0):
+        if keyboard.left: findMoveTile(&quot;left&quot;)
+        if keyboard.right: findMoveTile(&quot;right&quot;)
+        if keyboard.up: findMoveTile(&quot;up&quot;)
+        if keyboard.down: findMoveTile(&quot;down&quot;)
+
+def on_mouse_down(pos):
+    if (gameStatus == 0):
+        doLock()
+        for t in range(15):
+            if tileList[t].collidepoint(pos):
+                m = moveTile(tileList[t])
+                if(m != False):
+                    animate(tileList[t],on_finished=releaseLock, pos=(tileList[t].x+m[1], tileList[t].y+m[2]))
+                    return True
+        releaseLock()
+
+def findMoveTile(moveDirection):
+    doLock()
+    for t in range(15):
+        m = moveTile(tileList[t])
+        if(m != False):
+            if(m[0] == moveDirection):
+                animate(tileList[t],on_finished=releaseLock, pos=(tileList[t].x+m[1], tileList[t].y+m[2]))
+                return True
+    releaseLock()
+    return False
+
+def releaseLock():
+    global gameStatus
+    if(gameStatus == 2): scrambleCat()
+    else: gameStatus = checkSuccess()
+
+def doLock():
+    global gameStatus
+    gameStatus = 1
+
+def checkSuccess():
+    for t in range(15):
+        if(tileList[t].x != correctList[t][0] or tileList[t].y != correctList[t][1]):
+            return 0
+    return 3	# we have success!
+
+def makeTiles():
+    global tileList, correctList
+    xoffset = 251
+    yoffset = 151
+    x = y = c = 0
+    while y &lt; 4:
+        while x &lt; 4:
+            if(c &lt; 15):
+                tileList.append(Actor(&quot;img&quot;+str(c), pos = (xoffset+(x*100),yoffset+(y*100))))
+                correctList.append((xoffset+(x*100),yoffset+(y*100)))
+            c += 1
+            x += 1
+        x = 0
+        y += 1
+    scrambleCat()
+
+def scrambleCat():
+    global gameStatus, scrambleCountdown, scrambleList
+    tileDirs = [&quot;left&quot;, &quot;right&quot;, &quot;up&quot;, &quot;down&quot;]
+    if(scrambleCountdown &gt; 0):
+        mt = False
+        while(mt == False):
+            mt = findMoveTile(tileDirs[scrambleList[scrambleCountdown]])
+            scrambleCountdown -= 1
+        gameStatus = 2
+    else:
+        gameStatus = 0
+
+def moveTile(tile):
+    borderRight = 551
+    borderLeft = 251
+    borderTop = 151
+    borderBottom = 451
+    rValue = False
+    if(tile.x &lt; borderRight): # can we go right?
+        tile.x += 1
+        if(not checkCollide(tile)): rValue = &quot;right&quot;, 100, 0
+        tile.x -= 1
+    if(tile.x &gt; borderLeft): # can we go left?
+        tile.x -= 1
+        if(not checkCollide(tile)): rValue = &quot;left&quot;, -100, 0
+        tile.x += 1
+    if(tile.y &lt; borderBottom): # can we go down?
+        tile.y += 1
+        if(not checkCollide(tile)): rValue = &quot;down&quot;, 0, 100
+        tile.y -= 1
+    if(tile.y &gt; borderTop): # can we go up?
+        tile.y -= 1
+        if(not checkCollide(tile)): rValue = &quot;up&quot;, 0, -100
+        tile.y += 1
+    return rValue
+
+def checkCollide(tile):
+    for t in range(15):
+        if tile.colliderect(tileList[t]) and tile != tileList[t]: return True
+    return False
+
+makeTiles()
+pgzrun.go()
+</code></pre>
+</main>
+
+<script>
+WIDTH = 800;
+HEIGHT = 600;
+
+const SCRAMBLE_LIST = [2, 0, 2, 0, 3, 1, 1, 1, 3, 0, 0, 2, 1, 2, 1, 3, 3, 0, 3, 0, 2, 0, 2, 2, 1, 3, 1, 3, 3, 1, 2];
+
+var gameStatus, tileList, correctList, scrambleCountdown;
+
+function reset() {
+  gameStatus = 0;
+  tileList = [];
+  correctList = [];
+  scrambleCountdown = 30;
+
+  makeTiles();
+}
+
+function draw() { // Pygame Zero draw function
+  screen.fill([141, 172, 242]);
+  screen.blit('board', [150, 50]);
+  for (let t of tileList) {
+    t.draw();
+  }
+  if (gameStatus === 3) {
+    screen.draw.text("Success!", {
+      pos: [315, 20],
+      owidth: 0.5,
+      ocolor: [255, 255, 255],
+      color: [128, 64, 0],
+      fontsize: 60
+    });
+  }
+  if (gameStatus === 2) {
+    screen.draw.text("Please wait while we scramble the cat", {
+      pos: [135, 540],
+      owidth: 0.5,
+      ocolor: [255, 255, 255],
+      color: [128, 64, 0],
+      fontsize: 40
+    });
+  }
+  if (gameStatus <= 1) {
+    screen.draw.text("Click on a tile to move it or use the arrow keys", {
+      pos: [95, 540],
+      owidth: 0.5,
+      ocolor: [255, 255, 255],
+      color: [128, 64, 0],
+      fontsize: 40
+    });
+  }
+}
+
+function update() { // Pygame Zero update function
+  if (gameStatus === 0) {
+    if (keyboard[keys.LEFT]) {
+      findMoveTile("left");
+    }
+    if (keyboard[keys.RIGHT]) {
+      findMoveTile("right");
+    }
+    if (keyboard[keys.UP]) {
+      findMoveTile("up");
+    }
+    if (keyboard[keys.DOWN]) {
+      findMoveTile("down");
+    }
+  }
+}
+
+function on_mouse_down(pos) {
+  if (gameStatus === 0) {
+    doLock();
+    for (let t of tileList) {
+      if (t.collidepoint(pos)) {
+        let [direction, dx, dy] = moveTile(t);
+        if (direction !== '') {
+          animate(t, 1.0, {pos: [t.posx + dx, t.posy + dy]}, 'linear', releaseLock);
+          return true;
+        }
+      }
+    }
+    releaseLock();
+  }
+}
+
+function findMoveTile(moveDirection) {
+  doLock();
+  for (let t of tileList) {
+    let [direction, dx, dy] = moveTile(t);
+    if (direction !== '') {
+      if (direction === moveDirection) {
+        animate(t, 1.0, {pos: [t.posx + dx, t.posy + dy]}, 'linear', releaseLock);
+        return true;
+      }
+    }
+  }
+  releaseLock();
+  return false;
+}
+
+function releaseLock() {
+  if (gameStatus === 2) {
+    scrambleCat();
+  }
+  else {
+    gameStatus = checkSuccess();
+  }
+}
+
+function doLock() {
+  gameStatus = 1;
+}
+
+function checkSuccess() {
+  for (let t = 0; t < 15; t++) {
+    if ((tileList[t].posx !== correctList[t][0]) || (tileList[t].posy !== correctList[t][1])) {
+      return 0;
+    }
+  }
+  return 3;    // we have success!
+}
+
+function makeTiles() {
+  let xoffset = 251,
+      yoffset = 151,
+      x = 0,
+      y = 0,
+      c = 0,
+      tile;
+  while (y < 4) {
+    while (x < 4) {
+      if (c < 15) {
+        tile = new Actor("img" + c);
+        tile.pos = [xoffset + (x * 100), yoffset + (y * 100)];
+        tileList.push(tile);
+        correctList.push([xoffset + (x * 100), yoffset + (y * 100)]);
+      }
+      c += 1;
+      x += 1;
+    }
+    x = 0;
+    y += 1;
+  }
+  scrambleCat();
+}
+
+function scrambleCat() {
+  const TILE_DIRECTIONS = ["left", "right", "up", "down"];
+  if (scrambleCountdown > 0) {
+    let mt = false;
+    while (!mt) {
+      mt = findMoveTile(TILE_DIRECTIONS[SCRAMBLE_LIST[scrambleCountdown]]);
+      scrambleCountdown -= 1;
+    }
+    gameStatus = 2;
+  }
+  else {
+    gameStatus = 0;
+  }
+}
+
+function moveTile(tile) {
+  const borderRight = 551;
+  const borderLeft = 251;
+  const borderTop = 151;
+  const borderBottom = 451;
+  let rValue = ['', 0, 0];
+  if (tile.posx < borderRight) { // can we go right?
+    tile.posx += 1;
+    if (!checkCollide(tile)) {
+      rValue = ["right", 100, 0];
+    }
+    tile.posx -= 1;
+  }
+  if (tile.posx > borderLeft) { // can we go left?
+    tile.posx -= 1;
+    if (!checkCollide(tile)) {
+      rValue = ["left", -100, 0];
+    }
+    tile.posx += 1;
+  }
+  if (tile.posy < borderBottom) { // can we go down?
+    tile.posy += 1;
+    if (!checkCollide(tile)) {
+      rValue = ["down", 0, 100];
+    }
+    tile.posy -= 1;
+  }
+  if (tile.posy > borderTop) { // can we go up?
+    tile.posy -= 1;
+    if (!checkCollide(tile)) {
+      rValue = ["up", 0, -100];
+    }
+    tile.posy += 1;
+  }
+  return rValue;
+}
+
+function checkCollide(tile) {
+  for (let t of tileList) {
+    if (tile.colliderect(t) && (tile != t)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
