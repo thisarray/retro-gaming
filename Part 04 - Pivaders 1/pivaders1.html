@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pivaders1</title>
+  <script src="../../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+.hidden {
+  display: none;
+}
+#original {
+  margin-left: 1em;
+}
+  </style>
+</head>
+
+<body>
+<section id="imageLoader" class="hidden">
+  <img class="hidden" src="images/alien1.png" alt="alien1" data-name="alien1">
+  <img class="hidden" src="images/alien1b.png" alt="alien1b" data-name="alien1b">
+  <img class="hidden" src="images/background.png" alt="background" data-name="background">
+  <img class="hidden" src="images/base1.png" alt="base1" data-name="base1">
+  <img class="hidden" src="images/explosion1.png" alt="explosion1" data-name="explosion1">
+  <img class="hidden" src="images/explosion2.png" alt="explosion2" data-name="explosion2">
+  <img class="hidden" src="images/explosion3.png" alt="explosion3" data-name="explosion3">
+  <img class="hidden" src="images/explosion4.png" alt="explosion4" data-name="explosion4">
+  <img class="hidden" src="images/explosion5.png" alt="explosion5" data-name="explosion5">
+  <img class="hidden" src="images/laser1.png" alt="laser1" data-name="laser1">
+  <img class="hidden" src="images/laser2.png" alt="laser2" data-name="laser2">
+  <img class="hidden" src="images/player.png" alt="player" data-name="player">
+</section>
+
+<main>
+<h1>pivaders1</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<h2>Attribution</h2>
+
+<p><a href="https://magpi.raspberrypi.com/books/retro-gaming-raspberry-pi-2nd-edition">Retro Gaming with Raspberry Pi 2nd Edition, 90 - 97</a>.</p>
+
+<p><a href="https://magpi.raspberrypi.com/books/retro-gaming">Retro Gaming with Raspberry Pi, pages 66 - 73</a>.</p>
+
+<p>Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</a>.</p>
+
+<h2>Original Python code</h2>
+
+<pre id="original"><code>
+import pgzrun
+from random import randint
+import math
+DIFFICULTY = 1
+player = Actor(&quot;player&quot;, (400, 550)) # Load in the player Actor image
+
+def draw(): # Pygame Zero draw function
+    screen.blit(&#x27;background&#x27;, (0, 0))
+    player.image = player.images[math.floor(player.status/6)]
+    player.draw()
+    drawLasers()
+    drawAliens()
+    drawBases()
+    screen.draw.text(str(score) , topright=(780, 10), owidth=0.5, ocolor=(255,255,255), color=(0,64,255) , fontsize=60)
+    if player.status &gt;= 30:
+        screen.draw.text(&quot;GAME OVER\nPress Enter to play again&quot; , center=(400, 300), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=60)
+    if len(aliens) == 0 :
+        screen.draw.text(&quot;YOU WON!\nPress Enter to play again&quot; , center=(400, 300), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=60)
+
+def update(): # Pygame Zero update function
+    global moveCounter,player
+    if player.status &lt; 30 and len(aliens) &gt; 0:
+        checkKeys()
+        updateLasers()
+        moveCounter += 1
+        if moveCounter == moveDelay:
+            moveCounter = 0
+            updateAliens()
+        if player.status &gt; 0: player.status += 1
+    else:
+        if keyboard.RETURN: init()
+
+def drawAliens():
+    for a in range(len(aliens)): aliens[a].draw()
+
+def drawBases():
+    for b in range(len(bases)): bases[b].drawClipped()
+
+def drawLasers():
+    for l in range(len(lasers)): lasers[l].draw()
+
+def checkKeys():
+    global player, lasers
+    if keyboard.left:
+        if player.x &gt; 40: player.x -= 5
+    if keyboard.right:
+        if player.x &lt; 760: player.x += 5
+    if keyboard.space:
+        if player.laserActive == 1:
+            player.laserActive = 0
+            clock.schedule(makeLaserActive, 1.0)
+            l = len(lasers)
+            lasers.append(Actor(&quot;laser2&quot;, (player.x,player.y-32)))
+            lasers[l].status = 0
+            lasers[l].type = 1
+
+def makeLaserActive():
+    global player
+    player.laserActive = 1
+
+def checkBases():
+    for b in range(len(bases)):
+        if l &lt; len(bases):
+            if bases[b].height &lt; 5:
+                del bases[b]
+
+def updateLasers():
+    global lasers, aliens
+    for l in range(len(lasers)):
+        if lasers[l].type == 0:
+            lasers[l].y += (2*DIFFICULTY)
+            checkLaserHit(l)
+            if lasers[l].y &gt; 600: lasers[l].status = 1
+        if lasers[l].type == 1:
+            lasers[l].y -= 5
+            checkPlayerLaserHit(l)
+            if lasers[l].y &lt; 10: lasers[l].status = 1
+    lasers = listCleanup(lasers)
+    aliens = listCleanup(aliens)
+
+def listCleanup(l):
+    newList = []
+    for i in range(len(l)):
+        if l[i].status == 0: newList.append(l[i])
+    return newList
+
+def checkLaserHit(l):
+    global player
+    if player.collidepoint((lasers[l].x, lasers[l].y)):
+        player.status = 1
+        lasers[l].status = 1
+    for b in range(len(bases)):
+        if bases[b].collideLaser(lasers[l]):
+            bases[b].height -= 10
+            lasers[l].status = 1
+
+def checkPlayerLaserHit(l):
+    global score
+    for b in range(len(bases)):
+        if bases[b].collideLaser(lasers[l]): lasers[l].status = 1
+    for a in range(len(aliens)):
+        if aliens[a].collidepoint((lasers[l].x, lasers[l].y)):
+            lasers[l].status = 1
+            aliens[a].status = 1
+            score += 1000
+
+def updateAliens():
+    global moveSequence, lasers, moveDelay
+    movex = movey = 0
+    if moveSequence &lt; 10 or moveSequence &gt; 30: movex = -15
+    if moveSequence == 10 or moveSequence == 30:
+        movey = 50 + (10 * DIFFICULTY)
+        moveDelay -= 1
+    if moveSequence &gt;10 and moveSequence &lt; 30: movex = 15
+    for a in range(len(aliens)):
+        animate(aliens[a], pos=(aliens[a].x + movex, aliens[a].y + movey), duration=0.5, tween=&#x27;linear&#x27;)
+        if randint(0, 1) == 0:
+            aliens[a].image = &quot;alien1&quot;
+        else:
+            aliens[a].image = &quot;alien1b&quot;
+            if randint(0, 5) == 0:
+                lasers.append(Actor(&quot;laser1&quot;, (aliens[a].x,aliens[a].y)))
+                lasers[len(lasers)-1].status = 0
+                lasers[len(lasers)-1].type = 0
+        if aliens[a].y &gt; player.y and player.status == 0:
+            player.status = 1
+    moveSequence +=1
+    if moveSequence == 40: moveSequence = 0
+
+def init():
+    global lasers, score, player, moveSequence, moveCounter, moveDelay
+    initAliens()
+    initBases()
+    moveCounter = moveSequence = player.status = score = player.laserCountdown = 0
+    lasers = []
+    moveDelay = 30
+    player.images = [&quot;player&quot;,&quot;explosion1&quot;,&quot;explosion2&quot;,&quot;explosion3&quot;,&quot;explosion4&quot;,&quot;explosion5&quot;]
+    player.laserActive = 1
+
+def initAliens():
+    global aliens
+    aliens = []
+    for a in range(18):
+        aliens.append(Actor(&quot;alien1&quot;, (210+(a % 6)*80,100+(int(a/6)*64))))
+        aliens[a].status = 0
+
+def drawClipped(self):
+    screen.surface.blit(self._surf, (self.x-32, self.y-self.height+30),(0,0,64,self.height))
+
+def collideLaser(self, other):
+    return (
+        self.x-20 &lt; other.x+5 and
+        self.y-self.height+30 &lt; other.y and
+        self.x+32 &gt; other.x+5 and
+        self.y-self.height+30 + self.height &gt; other.y
+    )
+
+def initBases():
+    global bases
+    bases = []
+    bc = 0
+    for b in range(3):
+        for p in range(3):
+            bases.append(Actor(&quot;base1&quot;, midbottom=(150+(b*200)+(p*40),520)))
+            bases[bc].drawClipped = drawClipped.__get__(bases[bc])
+            bases[bc].collideLaser = collideLaser.__get__(bases[bc])
+            bases[bc].height = 60
+            bc +=1
+
+init()
+pgzrun.go()
+</code></pre>
+</main>
+
+<script>
+const DIFFICULTY = 1;
+
+/*
+ * Return a random integer N such that min <= N < max.
+ */
+function getRandomInteger(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor((Math.random() * (max - min)) + min);
+}
+
+var player, aliens, bases, moveCounter, moveSequence, score, lasers, moveDelay;
+
+function draw() { // Pygame Zero draw function
+  screen.blit('background', [0, 0]);
+  player.name = player.images[Math.floor(player.status / 6)];
+  player.draw();
+  drawLasers();
+  drawAliens();
+  drawBases();
+  screen.draw.text(score.toFixed(0), {
+    topright: [780, 10],
+    owidth: 0.5,
+    ocolor: [255, 255, 255],
+    color: [0, 64, 255],
+    fontsize: 60
+  });
+  if (player.status >= 30) {
+    screen.draw.text("GAME OVER\nPress Enter to play again", {
+      center: [400, 300],
+      owidth: 0.5,
+      ocolor: [255, 255, 255],
+      color: [255, 64, 0],
+      fontsize: 60
+    });
+  }
+  if (aliens.length === 0) {
+    screen.draw.text("YOU WON!\nPress Enter to play again", {
+      center: [400, 300],
+      owidth: 0.5,
+      ocolor: [255, 255, 255],
+      color: [255, 64, 0],
+      fontsize: 60
+    });
+  }
+}
+
+function update() { // Pygame Zero update function
+  if ((player.status < 30) && (aliens.length > 0)) {
+    checkKeys();
+    updateLasers();
+    moveCounter += 1;
+    if (moveCounter === moveDelay) {
+      moveCounter = 0;
+      updateAliens();
+    }
+    if (player.status > 0) {
+      player.status += 1;
+    }
+  }
+  else {
+    if (keyboard[keys.RETURN]) {
+      reset();
+    }
+  }
+}
+
+function drawAliens() {
+  for (let a of aliens) {
+    a.draw();
+  }
+}
+
+function drawBases() {
+  for (let b of bases) {
+    b.drawClipped();
+  }
+}
+
+function drawLasers() {
+  for (let l of lasers) {
+    l.draw();
+  }
+}
+
+function checkKeys() {
+  if (keyboard[keys.LEFT]) {
+    if (player.posx > 40) {
+      player.posx -= 5;
+    }
+  }
+  if (keyboard[keys.RIGHT]) {
+    if (player.posx < 760) {
+      player.posx += 5;
+    }
+  }
+  if (keyboard[keys.SPACE]) {
+    if (player.laserActive === 1) {
+      player.laserActive = 0;
+      clock.schedule(makeLaserActive, 1.0);
+      let laser = new Actor("laser2");
+      laser.pos = [player.posx, player.posy - 32];
+      laser.status = 0;
+      laser.type = 1;
+      lasers.push(laser);
+    }
+  }
+}
+
+function makeLaserActive() {
+  player.laserActive = 1;
+}
+
+/*
+ * The original code has an undeclared variable l.
+ * So I am not completely certain what it wanted to do.
+ */
+function checkBases() {
+  bases = bases.filter(b => (b.baseHeight >= 5));
+}
+
+function updateLasers() {
+  for (let l = 0; l < lasers.length; l++) {
+    if (lasers[l].type === 0) {
+      lasers[l].posy += 2 * DIFFICULTY;
+      checkLaserHit(l);
+      if (lasers[l].posy > 600) {
+        lasers[l].status = 1;
+      }
+    }
+    if (lasers[l].type === 1) {
+      lasers[l].posy -= 5;
+      checkPlayerLaserHit(l);
+      if (lasers[l].posy < 10) {
+        lasers[l].status = 1;
+      }
+    }
+  }
+  lasers = listCleanup(lasers);
+  aliens = listCleanup(aliens);
+}
+
+function listCleanup(l) {
+  return l.filter(i => (i.status === 0));
+}
+
+function checkLaserHit(l) {
+  if (player.collidepoint([lasers[l].posx, lasers[l].posy])) {
+    player.status = 1;
+    lasers[l].status = 1;
+  }
+  for (let b of bases) {
+    if (b.collideLaser(lasers[l])) {
+      b.baseHeight -= 10;
+      lasers[l].status = 1;
+    }
+  }
+}
+
+function checkPlayerLaserHit(l) {
+  for (let b of bases) {
+    if (b.collideLaser(lasers[l])) {
+      lasers[l].status = 1;
+    }
+  }
+  for (let a of aliens) {
+    if (a.collidepoint([lasers[l].posx, lasers[l].posy])) {
+      lasers[l].status = 1;
+      a.status = 1;
+      score += 1000;
+    }
+  }
+}
+
+function updateAliens() {
+  let movex = 0,
+      movey = 0;
+  if ((moveSequence < 10) || (moveSequence > 30)) {
+    movex = -15;
+  }
+  if ((moveSequence === 10) || (moveSequence === 30)) {
+    movey = 50 + (10 * DIFFICULTY);
+    moveDelay -= 1;
+  }
+  if ((moveSequence > 10) && (moveSequence < 30)) {
+    movex = 15;
+  }
+  for (let a of aliens) {
+    animate(a, 0.5, {pos: [a.posx + movex, a.posy + movey]}, 'linear');
+    if (getRandomInteger(0, 2) === 0) {
+      a.name = "alien1";
+    }
+    else {
+      a.name = "alien1b";
+      if (getRandomInteger(0, 6) === 0) {
+        let laser = new Actor("laser1");
+        laser.pos = [a.posx, a.posy];
+        laser.status = 0;
+        laser.type = 0;
+        lasers.push(laser);
+      }
+    }
+    if ((a.posy > player.posy) && (player.status === 0)) {
+      player.status = 1;
+    }
+  }
+  moveSequence += 1;
+  if (moveSequence === 40) {
+    moveSequence = 0;
+  }
+}
+
+function reset() {
+  player = new Actor("player"); // Load in the player Actor image
+  player.pos = [400, 550];
+  player.status = 0;
+  player.laserCountdown = 0;
+  player.images = ["player", "explosion1", "explosion2", "explosion3", "explosion4", "explosion5"];
+  player.laserActive = 1;
+
+  initAliens();
+  initBases();
+  moveCounter = 0;
+  moveSequence = 0;
+  score = 0;
+  lasers = [];
+  moveDelay = 30;
+}
+
+function initAliens() {
+  aliens = [];
+  for (let a = 0; a < 18; a++) {
+    let alien = new Actor("alien1");
+    alien.pos = [210 + ((a % 6) * 80), 100 + (Math.trunc(a / 6) * 64)];
+    alien.status = 0;
+    aliens.push(alien);
+  }
+}
+
+class Base extends Actor {
+  constructor() {
+    super("base1");
+    this.baseHeight = 60;
+  }
+
+  drawClipped() {
+    screen.blit(this.name, new Rect(0, 0, 64, this.baseHeight), new Rect(this.posx - 32, this.posy - this.baseHeight + 30, 64, this.baseHeight));
+  }
+
+  collideLaser(laser) {
+    return (((this.posx - 20) < (laser.posx + 5)) &&
+            ((this.posy - this.baseHeight + 30) < laser.posy) &&
+            ((this.posx + 32) > (laser.posx + 5)) &&
+            ((this.posy + 30) > laser.posy));
+  }
+}
+
+function initBases() {
+  bases = [];
+  for (let b = 0; b < 3; b++) {
+    for (let p = 0; p < 3; p++) {
+      let base = new Base();
+      base.midbottom = [150 + (b * 200) + (p * 40), 520];
+      bases.push(base);
+    }
+  }
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
