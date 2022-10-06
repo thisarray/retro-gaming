@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>amazeballs1</title>
+  <script src="../../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+.hidden {
+  display: none;
+}
+#original {
+  margin-left: 1em;
+}
+  </style>
+</head>
+
+<body>
+<section id="imageLoader" class="hidden">
+  <img class="hidden" src="images/ball0.png" alt="ball0" data-name="ball0">
+  <img class="hidden" src="images/ball1.png" alt="ball1" data-name="ball1">
+  <img class="hidden" src="images/ball2.png" alt="ball2" data-name="ball2">
+  <img class="hidden" src="images/ball3.png" alt="ball3" data-name="ball3">
+  <img class="hidden" src="images/ball4.png" alt="ball4" data-name="ball4">
+  <img class="hidden" src="images/ball5.png" alt="ball5" data-name="ball5">
+  <img class="hidden" src="images/ball6.png" alt="ball6" data-name="ball6">
+  <img class="hidden" src="images/ball7.png" alt="ball7" data-name="ball7">
+  <img class="hidden" src="images/map1c.png" alt="map1c" data-name="map1c">
+  <img class="hidden" src="images/map2c.png" alt="map2c" data-name="map2c">
+  <img class="hidden" src="images/title.png" alt="title" data-name="title">
+</section>
+
+<main>
+<h1>amazeballs1</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<h2>Attribution</h2>
+
+<p><a href="https://magpi.raspberrypi.com/books/retro-gaming">Retro Gaming with Raspberry Pi, pages 100 - 105</a>.</p>
+
+<p>Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</a>.</p>
+
+<h2>Original Python code</h2>
+
+<pre id="original"><code>
+import pgzrun
+
+player = {&quot;x&quot;:0, &quot;y&quot;:3, &quot;frame&quot;:0, &quot;sx&quot;:0, &quot;sy&quot;:0,
+          &quot;moveX&quot;:0, &quot;moveY&quot;:0, &quot;queueX&quot;:0, &quot;queueY&quot;:0,
+          &quot;moveDone&quot;:True, &quot;movingNow&quot;:False, &quot;animCounter&quot;:0}
+OFFSETX = 368
+OFFSETY = 200
+
+mapData = [[1,1,1,0,1,1,1,1,1,1,1,1],
+           [1,0,0,0,0,0,0,0,0,0,0,1],
+           [1,1,1,1,1,1,1,0,1,1,1,1],
+           [1,0,0,0,0,0,0,0,0,0,0,1],
+           [1,1,1,1,1,1,1,1,0,0,0,1],
+           [1,0,0,0,0,0,0,1,0,1,1,1],
+           [1,0,1,0,1,1,0,1,0,0,0,1],
+           [1,0,1,0,1,0,0,1,1,1,0,1],
+           [1,0,1,0,1,0,0,0,0,0,0,1],
+           [1,1,1,0,1,1,1,1,1,1,1,1],
+           [1,0,0,0,0,0,0,0,0,0,0,1],
+           [1,1,1,1,1,1,1,1,0,1,1,1]]
+mapInfo = {&quot;width&quot;:12, &quot;height&quot;:12}
+
+mapBlocks = [&quot;map1c&quot;,&quot;map2c&quot;]
+mapHeight = [0,32]
+mazeSolved = False
+
+def draw(): # Pygame Zero draw function
+    screen.fill((0, 0, 0))
+    drawMap()
+    screen.blit(&#x27;title&#x27;, (200, 0))
+    if mazeSolved :
+        screen.draw.text(&quot;MAZE SOLVED!&quot; , center=(400, 300), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=60)
+
+def update(): # Pygame Zero update function
+    global player
+    if player[&quot;moveDone&quot;] == True:
+        if keyboard.left: doMove(player, -1, 0)
+        if keyboard.right: doMove(player, 1, 0)
+        if keyboard.up: doMove(player, 0, -1)
+        if keyboard.down: doMove(player, 0, 1)
+    updateBall(player)
+
+def drawMap():
+    for x in range(0, 12):
+        for y in range(0, 12):
+            screen.blit(mapBlocks[mapData[x][y]], ((x*32)-(y*32)+OFFSETX,
+                        (y*16)+(x*16)+OFFSETY - mapHeight[mapData[x][y]]))
+            if x == player[&quot;x&quot;] and y == player[&quot;y&quot;]:
+                if player[&quot;sx&quot;] == 0:
+                   player[&quot;sx&quot;] = (x*32)-(y*32)+OFFSETX
+                   player[&quot;sy&quot;] = (y*16)+(x*16)+OFFSETY-32
+                screen.blit(&quot;ball&quot;+str(player[&quot;frame&quot;]), (player[&quot;sx&quot;], player[&quot;sy&quot;]))
+
+def doMove(p, x, y):
+    if 0 &lt;= (p[&quot;x&quot;]+x) &lt; mapInfo[&quot;width&quot;] and 0 &lt;= (p[&quot;y&quot;]+y) &lt; mapInfo[&quot;height&quot;]:
+        if mapData[p[&quot;x&quot;]+x][p[&quot;y&quot;]+y] == 0:
+            p.update({&quot;queueX&quot;:x, &quot;queueY&quot;:y, &quot;moveDone&quot;:False})
+
+def updateBall(p):
+    global mazeSolved
+    if p[&quot;movingNow&quot;]:
+        if p[&quot;moveX&quot;] == -1: moveP(p,-1,-0.5)
+        if p[&quot;moveX&quot;] == 1: moveP(p,1,0.5)
+        if p[&quot;moveY&quot;] == -1: moveP(p,1,-0.5)
+        if p[&quot;moveY&quot;] == 1: moveP(p,-1,0.5)
+    p[&quot;animCounter&quot;] += 1
+    if p[&quot;animCounter&quot;] == 4:
+        p[&quot;animCounter&quot;] = 0
+        p[&quot;frame&quot;] += 1
+        if p[&quot;frame&quot;] &gt; 7:
+            p[&quot;frame&quot;] = 0
+        if p[&quot;frame&quot;] == 4:
+            if p[&quot;moveDone&quot;] == False:
+                if p[&quot;queueX&quot;] != 0 or p[&quot;queueY&quot;] !=0:
+                    p.update({&quot;moveX&quot;:p[&quot;queueX&quot;], &quot;moveY&quot;:p[&quot;queueY&quot;], &quot;queueX&quot;:0, &quot;queueY&quot;:0, &quot;movingNow&quot;: True})
+            else:
+                p.update({&quot;moveX&quot;:0, &quot;moveY&quot;:0, &quot;movingNow&quot;:False})
+                if p[&quot;x&quot;] == 11 and p[&quot;y&quot;] == 8: mazeSolved = True
+
+        if p[&quot;frame&quot;] == 7 and p[&quot;moveDone&quot;] == False and p[&quot;movingNow&quot;] == True:
+            p[&quot;x&quot;] += p[&quot;moveX&quot;]
+            p[&quot;y&quot;] += p[&quot;moveY&quot;]
+            p[&quot;moveDone&quot;] = True
+
+def moveP(p,x,y):
+    p[&quot;sx&quot;] += x
+    p[&quot;sy&quot;] += y
+
+pgzrun.go()
+</code></pre>
+</main>
+
+<script>
+const OFFSETX = 368;
+const OFFSETY = 200;
+
+const MAP_DATA = [[1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+                  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1],
+                  [1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1],
+                  [1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1],
+                  [1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1],
+                  [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+                  [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                  [1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1]];
+
+const MAP_INFO = {width: 12, height: 12};
+
+const MAP_BLOCKS = ["map1c", "map2c"];
+const MAP_HEIGHT = [0, 32];
+
+var player, mazeSolved;
+
+function reset() {
+  player = {
+    x: 3,
+    y: 3,
+    frame: 0,
+    sx: 0,
+    sy: 0,
+    moveX: 0,
+    moveY: 0,
+    queueX: 0,
+    queueY: 0,
+    moveDone: true,
+    movingNow: false,
+    animCounter: 0
+  };
+  mazeSolved = false;
+}
+
+function draw() { // Pygame Zero draw function
+  screen.fill([0, 0, 0]);
+  drawMap();
+  screen.blit('title', [200, 0]);
+  if (mazeSolved) {
+    screen.draw.text("MAZE SOLVED!", {
+      center: [400, 300],
+      owidth: 0.5,
+      ocolor: [0, 0, 0],
+      color: [0, 255, 0],
+      fontsize: 60
+    });
+  }
+}
+
+function update() { // Pygame Zero update function
+  if (player["moveDone"]) {
+    if (keyboard[keys.LEFT]) {
+      doMove(player, -1, 0);
+    }
+    if (keyboard[keys.RIGHT]) {
+      doMove(player, 1, 0);
+    }
+    if (keyboard[keys.UP]) {
+      doMove(player, 0, -1);
+    }
+    if (keyboard[keys.DOWN]) {
+      doMove(player, 0, 1);
+    }
+  }
+  updateBall(player);
+}
+
+function drawMap() {
+  for (let x = 0; x < 12; x++) {
+    for (let y = 0; y < 12; y++) {
+      screen.blit(MAP_BLOCKS[MAP_DATA[x][y]], [(x * 32) - (y * 32) + OFFSETX, (y * 16) + (x * 16) + OFFSETY - MAP_HEIGHT[MAP_DATA[x][y]]]);
+      if ((x === player["x"]) && (y === player["y"])) {
+        if (player["sx"] === 0) {
+          player["sx"] = (x * 32) - (y * 32) + OFFSETX;
+          player["sy"] = (y * 16) + (x * 16) + OFFSETY - 32;
+        }
+        screen.blit("ball" + player["frame"], [player["sx"], player["sy"]]);
+      }
+    }
+  }
+}
+
+function doMove(p, x, y) {
+  if ((0 <= (p["x"] + x)) && ((p["x"] + x) < MAP_INFO["width"]) && (0 <= (p["y"] + y)) && ((p["y"] + y) < MAP_INFO["height"])) {
+    if (MAP_DATA[p["x"]+x][p["y"]+y] === 0) {
+      p["queueX"] = x;
+      p["queueY"] = y;
+      p["moveDone"] = false;
+    }
+  }
+}
+
+function updateBall(p) {
+  if (p["movingNow"]) {
+    if (p["moveX"] === -1) {
+      moveP(p, -1, -0.5);
+    }
+    if (p["moveX"] === 1) {
+      moveP(p, 1, 0.5);
+    }
+    if (p["moveY"] === -1) {
+      moveP(p, 1, -0.5);
+    }
+    if (p["moveY"] === 1) {
+      moveP(p, -1, 0.5);
+    }
+  }
+  p["animCounter"] += 1;
+  if (p["animCounter"] === 4) {
+    p["animCounter"] = 0;
+    p["frame"] += 1;
+    if (p["frame"] > 7) {
+      p["frame"] = 0;
+    }
+    if (p["frame"] === 4) {
+      if (!p["moveDone"]) {
+        if ((p["queueX"] !== 0) || (p["queueY"] !== 0)) {
+          p["moveX"] = p["queueX"];
+          p["moveY"] = p["queueY"];
+          p["queueX"] = 0;
+          p["queueY"] = 0;
+          p["movingNow"] = true;
+        }
+      }
+      else {
+        p["moveX"] = 0;
+        p["moveY"] = 0;
+        p["movingNow"] = false;
+        if ((p["x"] === 11) && (p["y"] === 8)) {
+          mazeSolved = true;
+        }
+      }
+    }
+
+    if ((p["frame"] === 7) && (!p["moveDone"]) && p["movingNow"]) {
+      p["x"] += p["moveX"];
+      p["y"] += p["moveY"];
+      p["moveDone"] = true;
+    }
+  }
+}
+
+function moveP(p, x, y) {
+  p["sx"] += x;
+  p["sy"] += y;
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
