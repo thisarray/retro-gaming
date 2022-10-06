@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>piman2</title>
+  <script src="../../jsgame0.js"></script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+.hidden {
+  display: none;
+}
+#original {
+  margin-left: 1em;
+}
+  </style>
+</head>
+
+<body>
+<section id="imageLoader" class="hidden">
+  <img class="hidden" src="images/colourmap.png" alt="colourmap" data-name="colourmap">
+  <img class="hidden" src="images/dot.png" alt="dot" data-name="dot">
+  <img class="hidden" src="images/flame1.png" alt="flame1" data-name="flame1">
+  <img class="hidden" src="images/flame1dark.png" alt="flame1dark" data-name="flame1dark">
+  <img class="hidden" src="images/flame1r.png" alt="flame1r" data-name="flame1r">
+  <img class="hidden" src="images/flame2.png" alt="flame2" data-name="flame2">
+  <img class="hidden" src="images/flame2dark.png" alt="flame2dark" data-name="flame2dark">
+  <img class="hidden" src="images/flame2r.png" alt="flame2r" data-name="flame2r">
+  <img class="hidden" src="images/flame3.png" alt="flame3" data-name="flame3">
+  <img class="hidden" src="images/flame3dark.png" alt="flame3dark" data-name="flame3dark">
+  <img class="hidden" src="images/flame3r.png" alt="flame3r" data-name="flame3r">
+  <img class="hidden" src="images/flame4.png" alt="flame4" data-name="flame4">
+  <img class="hidden" src="images/flame4dark.png" alt="flame4dark" data-name="flame4dark">
+  <img class="hidden" src="images/flame4r.png" alt="flame4r" data-name="flame4r">
+  <img class="hidden" src="images/flame5.png" alt="flame5" data-name="flame5">
+  <img class="hidden" src="images/flame5dark.png" alt="flame5dark" data-name="flame5dark">
+  <img class="hidden" src="images/flame5r.png" alt="flame5r" data-name="flame5r">
+  <img class="hidden" src="images/header.png" alt="header" data-name="header">
+  <img class="hidden" src="images/piman_c.png" alt="piman_c" data-name="piman_c">
+  <img class="hidden" src="images/piman_cr.png" alt="piman_cr" data-name="piman_cr">
+  <img class="hidden" src="images/piman_o.png" alt="piman_o" data-name="piman_o">
+  <img class="hidden" src="images/piman_or.png" alt="piman_or" data-name="piman_or">
+  <img class="hidden" src="images/pimandotmap.png" alt="pimandotmap" data-name="pimandotmap">
+  <img class="hidden" src="images/pimanmovemap.png" alt="pimanmovemap" data-name="pimanmovemap">
+  <img class="hidden" src="images/power.png" alt="power" data-name="power">
+</section>
+<section id="soundLoader" class="hidden">
+  <audio class="hidden" controls preload="auto" src="sounds/pi1.wav" data-name="pi1">Your browser does not support the audio element.</audio>
+  <audio class="hidden" controls preload="auto" src="sounds/pi2.wav" data-name="pi2">Your browser does not support the audio element.</audio>
+</section>
+<section id="musicLoader" class="hidden">
+  <audio class="hidden" controls preload="auto" src="music/pm1.mp3" data-name="pm1">Your browser does not support the audio element.</audio>
+</section>
+
+<main>
+<h1>piman2</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<h2>Attribution</h2>
+
+<p><a href="https://magpi.raspberrypi.com/books/retro-gaming-raspberry-pi-2nd-edition">Retro Gaming with Raspberry Pi 2nd Edition, pages 114 - 122</a>.</p>
+
+<p><a href="https://magpi.raspberrypi.com/books/retro-gaming">Retro Gaming with Raspberry Pi, pages 90 - 98</a>.</p>
+
+<p>Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</a>.</p>
+
+<h2>Original Python code</h2>
+
+<pre id="original"><code>
+import pgzrun
+from pygame import joystick, key
+from pygame.locals import *
+from pygame import image, surface, Color
+from random import randint
+from datetime import datetime
+
+joystick.init()
+joystick_count = joystick.get_count()
+
+if(joystick_count &gt; 0):
+    joyin = joystick.Joystick(0)
+    joyin.init()
+
+def checkInput(p):
+    global joyin, joystick_count
+    xaxis = yaxis = 0
+    if p.status == 0:
+        if joystick_count &gt; 0:
+            xaxis = joyin.get_axis(0)
+            yaxis = joyin.get_axis(1)
+        if key.get_pressed()[K_LEFT] or xaxis &lt; -0.8:
+            p.angle = 180
+            p.movex = -20
+        if key.get_pressed()[K_RIGHT] or xaxis &gt; 0.8:
+            p.angle = 0
+            p.movex = 20
+        if key.get_pressed()[K_UP] or yaxis &lt; -0.8:
+            p.angle = 90
+            p.movey = -20
+        if key.get_pressed()[K_DOWN] or yaxis &gt; 0.8:
+            p.angle = 270
+            p.movey = 20
+    if joystick_count &gt; 0:
+        jb = joyin.get_button(1)
+    else:
+        jb = 0
+    if p.status == 1:
+        if key.get_pressed()[K_RETURN] or jb:
+            return 1
+    if p.status == 2:
+        if key.get_pressed()[K_RETURN] or jb:
+            return 1
+
+moveimage = image.load(&#x27;images/pimanmovemap.png&#x27;)
+dotimage = image.load(&#x27;images/pimandotmap.png&#x27;)
+
+def checkMovePoint(p):
+    global moveimage
+    if p.x+p.movex &lt; 0: p.x = p.x+600
+    if p.x+p.movex &gt; 600: p.x = p.x-600
+    if moveimage.get_at((int(p.x+p.movex), int(p.y+p.movey-80))) != Color(&#x27;black&#x27;):
+        p.movex = p.movey = 0
+
+def checkDotPoint(x,y):
+    global dotimage
+    if dotimage.get_at((int(x), int(y))) == Color(&#x27;black&#x27;):
+        return 1
+    if dotimage.get_at((int(x), int(y))) == Color(&#x27;red&#x27;):
+        return 2
+    return False
+
+def getPossibleDirection(g):
+    global moveimage
+    if g.x-20 &lt; 0:
+        g.x = g.x+600
+    if g.x+20 &gt; 600:
+        g.x = g.x-600
+    directions = [0,0,0,0]
+    if g.x+20 &lt; 600:
+        if moveimage.get_at((int(g.x+20), int(g.y-80))) == Color(&#x27;black&#x27;): directions[0] = 1
+    if g.x &lt; 600 and g.x &gt;= 0:
+        if moveimage.get_at((int(g.x), int(g.y-60))) == Color(&#x27;black&#x27;): directions[1] = 1
+    if g.x-20 &gt;= 0:
+        if moveimage.get_at((int(g.x-20), int(g.y-80))) == Color(&#x27;black&#x27;): directions[2] = 1
+    if g.x &lt; 600 and g.x &gt;= 0:
+        if moveimage.get_at((int(g.x), int(g.y-100))) == Color(&#x27;black&#x27;): directions[3] = 1
+    return directions
+
+WIDTH = 600
+HEIGHT = 660
+
+player = Actor(&quot;piman_o&quot;) # Load in the player Actor image
+player.score = 0
+player.lives = 3
+level = 0
+SPEED = 3
+
+def draw(): # Pygame Zero draw function
+    global piDots, player
+    screen.blit(&#x27;header&#x27;, (0, 0))
+    screen.blit(&#x27;colourmap&#x27;, (0, 80))
+    piDotsLeft = 0
+    for a in range(len(piDots)):
+        if piDots[a].status == 0:
+            piDots[a].draw()
+            piDotsLeft += 1
+        if piDots[a].collidepoint((player.x, player.y)):
+            if piDots[a].status == 0:
+                if piDots[a].type == 2:
+                    for g in range(len(flames)): flames[g].status = 1200
+                else:
+                    player.score += 10
+            piDots[a].status = 1
+    if piDotsLeft == 0: player.status = 2
+    drawFlames()
+    getPlayerImage()
+    player.draw()
+    drawLives()
+    screen.draw.text(&quot;LEVEL &quot;+str(level) , topleft=(10, 10), owidth=0.5, ocolor=(0,0,255), color=(255,255,0) , fontsize=40)
+    screen.draw.text(str(player.score) , topright=(590, 20), owidth=0.5, ocolor=(255,255,255), color=(0,64,255) , fontsize=60)
+    if player.status == 3: drawCentreText(&quot;GAME OVER&quot;)
+    if player.status == 2: drawCentreText(&quot;LEVEL CLEARED!\nPress Enter or Button A\nto Continue&quot;)
+    if player.status == 1: drawCentreText(&quot;CAUGHT!\nPress Enter or Button A\nto Continue&quot;)
+
+
+def drawCentreText(t):
+    screen.draw.text(t , center=(300, 434), owidth=0.5, ocolor=(255,255,255), color=(255,64,0) , fontsize=60)
+
+def update(): # Pygame Zero update function
+    global player, moveFlamesFlag, flames
+    if player.status == 0:
+        if moveFlamesFlag == 4: moveFlames()
+        for g in range(len(flames)):
+            if flames[g].status &gt; 0: flames[g].status -= 1
+            if flames[g].collidepoint((player.x, player.y)):
+                if flames[g].status &gt; 0:
+                    player.score += 100
+                    animate(flames[g], pos=(290, 370), duration=1/SPEED, tween=&#x27;linear&#x27;, on_finished=flagMoveFlames)
+                else:
+                    player.lives -= 1
+                    sounds.pi2.play()
+                    if player.lives == 0:
+                        player.status = 3
+                        music.fadeout(3)
+                    else:
+                        player.status = 1
+        if player.inputActive:
+            checkInput(player)
+            checkMovePoint(player)
+            if player.movex or player.movey:
+                inputLock()
+                sounds.pi1.play()
+                animate(player, pos=(player.x + player.movex, player.y + player.movey), duration=1/SPEED, tween=&#x27;linear&#x27;, on_finished=inputUnLock)
+    if player.status == 1:
+        i = checkInput(player)
+        if i == 1:
+            player.status = 0
+            player.x = 290
+            player.y = 570
+    if player.status == 2:
+        i = checkInput(player)
+        if i == 1:
+            init()
+
+def init():
+    global player, level
+    initDots()
+    initFlames()
+    player.x = 290
+    player.y = 570
+    player.status = 0
+    inputUnLock()
+    level += 1
+    music.play(&quot;pm1&quot;)
+    music.set_volume(0.2)
+
+def drawLives():
+    for l in range(player.lives): screen.blit(&quot;piman_o&quot;, (10+(l*32),40))
+
+def getPlayerImage():
+    global player
+    dt = datetime.now()
+    a = player.angle
+    tc = dt.microsecond%(500000/SPEED)/(100000/SPEED)
+    if tc &gt; 2.5 and (player.movex != 0 or player.movey !=0):
+        if a != 180:
+            player.image = &quot;piman_c&quot;
+        else:
+            player.image = &quot;piman_cr&quot;
+    else:
+        if a != 180:
+            player.image = &quot;piman_o&quot;
+        else:
+            player.image = &quot;piman_or&quot;
+    player.angle = a
+
+def drawFlames():
+    for g in range(len(flames)):
+        if flames[g].x &gt; player.x:
+            if flames[g].status &gt; 200 or (flames[g].status &gt; 1 and flames[g].status%2 == 0):
+                flames[g].image = &quot;flame&quot;+str(g+1)+&quot;-&quot;
+            else:
+                flames[g].image = &quot;flame&quot;+str(g+1)+&quot;r&quot;
+        else:
+            if flames[g].status &gt; 200 or (flames[g].status &gt; 1 and flames[g].status%2 == 0):
+                flames[g].image = &quot;flame&quot;+str(g+1)+&quot;-&quot;
+            else:
+                flames[g].image = &quot;flame&quot;+str(g+1)
+        flames[g].draw()
+
+def moveFlames():
+    global moveFlamesFlag
+    dmoves = [(1,0),(0,1),(-1,0),(0,-1)]
+    moveFlamesFlag = 0
+    for g in range(len(flames)):
+        dirs = getPossibleDirection(flames[g])
+        if inTheCentre(flames[g]):
+            flames[g].dir = 3
+        else:
+            if g == 0: followPlayer(g, dirs)
+            if g == 1: ambushPlayer(g, dirs)
+
+        if dirs[flames[g].dir] == 0 or randint(0,50) == 0:
+            d = -1
+            while d == -1:
+                rd = randint(0,3)
+                if aboveCentre(flames[g]) and rd == 1:
+                    rd = 0
+                if dirs[rd] == 1:
+                    d = rd
+            flames[g].dir = d
+        animate(flames[g], pos=(flames[g].x + dmoves[flames[g].dir][0]*20, flames[g].y + dmoves[flames[g].dir][1]*20), duration=1/SPEED, tween=&#x27;linear&#x27;, on_finished=flagMoveFlames)
+
+def followPlayer(g, dirs):
+    d = flames[g].dir
+    if d == 1 or d == 3:
+        if player.x &gt; flames[g].x and dirs[0] == 1: flames[g].dir = 0
+        if player.x &lt; flames[g].x and dirs[2] == 1: flames[g].dir = 2
+    if d == 0 or d == 2:
+        if player.y &gt; flames[g].y and dirs[1] == 1 and not aboveCentre(flames[g]): flames[g].dir = 1
+        if player.y &lt; flames[g].y and dirs[3] == 1: flames[g].dir = 3
+
+
+def ambushPlayer(g, dirs):
+    d = flames[g].dir
+    if player.movex &gt; 0 and dirs[0] == 1: flames[g].dir = 0
+    if player.movex &lt; 0 and dirs[2] == 1: flames[g].dir = 2
+
+    if player.movey &gt; 0 and dirs[1] == 1 and not aboveCentre(flames[g]): flames[g].dir = 1
+    if player.movey &lt; 0 and dirs[3] == 1: flames[g].dir = 3
+
+def inTheCentre(ga):
+    if ga.x &gt; 220 and ga.x &lt; 380 and ga.y &gt; 320 and ga.y &lt; 420:
+        return True
+    return False
+
+def aboveCentre(ga):
+    if ga.x &gt; 220 and ga.x &lt; 380 and ga.y &gt; 300 and ga.y &lt; 320:
+        return True
+    return False
+
+def flagMoveFlames():
+    global moveFlamesFlag
+    moveFlamesFlag += 1
+
+def flameCollided(ga,gn):
+    for g in range(len(flames)):
+        if flames[g].colliderect(ga) and g != gn:
+            return True
+    return False
+
+def initDots():
+    global piDots
+    piDots = []
+    a = x = 0
+    while x &lt; 30:
+        y = 0
+        while y &lt; 29:
+            d = checkDotPoint(10+x*20, 10+y*20)
+            if d == 1:
+                piDots.append(Actor(&quot;dot&quot;,(10+x*20, 90+y*20)))
+                piDots[a].status = 0
+                piDots[a].type = 1
+                a += 1
+            if d == 2:
+                piDots.append(Actor(&quot;power&quot;,(10+x*20, 90+y*20)))
+                piDots[a].status = 0
+                piDots[a].type = 2
+                a += 1
+            y += 1
+        x += 1
+
+def initFlames():
+    global flames, moveFlamesFlag
+    moveFlamesFlag = 4
+    flames = []
+    g = 0
+    while g &lt; 4:
+        flames.append(Actor(&quot;flame&quot;+str(g+1),(270+(g*20), 370)))
+        flames[g].dir = randint(0, 3)
+        flames[g].status = 0
+        g += 1
+
+def inputLock():
+    global player
+    player.inputActive = False
+
+def inputUnLock():
+    global player
+    player.movex = player.movey = 0
+    player.inputActive = True
+
+init()
+pgzrun.go()
+</code></pre>
+</main>
+
+<script>
+WIDTH = 600;
+HEIGHT = 660;
+
+const SPEED = 3;
+
+/*
+ * Return a random integer N such that min <= N < max.
+ */
+function getRandomInteger(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor((Math.random() * (max - min)) + min);
+}
+
+function checkInput(p) {
+  let xaxis = 0,
+      yaxis = 0,
+      jb = false;
+  if (p.status === 0) {
+    if (Joystick.get_count() > 0) {
+      let joyin = new Joystick(0);
+      xaxis = joyin.get_axis(0);
+      yaxis = joyin.get_axis(1);
+    }
+    if (keyboard[keys.LEFT] || (xaxis < -0.8)) {
+      p.angle = 180;
+      p.movex = -20;
+    }
+    if (keyboard[keys.RIGHT] || (xaxis > 0.8)) {
+      p.angle = 0;
+      p.movex = 20;
+    }
+    if (keyboard[keys.UP] || (yaxis < -0.8)) {
+      p.angle = 90;
+      p.movey = -20;
+    }
+    if (keyboard[keys.DOWN] || (yaxis > 0.8)) {
+      p.angle = 270;
+      p.movey = 20;
+    }
+  }
+  if (Joystick.get_count() > 0) {
+    let joyin = new Joystick(0);
+    jb = joyin.get_button(1);
+  }
+  if (p.status === 1) {
+    if (keyboard[keys.RETURN] || jb) {
+      return 1;
+    }
+  }
+  if (p.status === 2) {
+    if (keyboard[keys.RETURN] || jb) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+function checkMovePoint(p) {
+  if ((p.posx + p.movex) < 0) {
+    p.posx = p.posx + 600;
+  }
+  if ((p.posx + p.movex) > 600) {
+    p.posx = p.posx - 600;
+  }
+  if (!Surface.isColorEqual(moveimage.getAt(Math.trunc(p.posx + p.movex), Math.trunc(p.posy + p.movey - 80)), [0, 0, 0])) {
+    p.movex = 0;
+    p.movey = 0;
+  }
+}
+
+function checkDotPoint(x, y) {
+  if (Surface.isColorEqual(dotimage.getAt(Math.trunc(x), Math.trunc(y)), [0, 0, 0])) {
+    return 1;
+  }
+  if (Surface.isColorEqual(dotimage.getAt(Math.trunc(x), Math.trunc(y)), [255, 0, 0])) {
+    return 2;
+  }
+  return 0;
+}
+
+function getPossibleDirection(g) {
+  if ((g.posx - 20) < 0) {
+    g.posx = g.posx + 600;
+  }
+  if ((g.posx + 20) > 600) {
+    g.posx = g.posx - 600;
+  }
+  let directions = [0, 0, 0, 0];
+  if ((g.posx + 20) < 600) {
+    if (Surface.isColorEqual(moveimage.getAt(Math.trunc(g.posx + 20), Math.trunc(g.posy - 80)), [0, 0, 0])) {
+      directions[0] = 1;
+    }
+  }
+  if ((g.posx < 600) && (g.posx >= 0)) {
+    if (Surface.isColorEqual(moveimage.getAt(Math.trunc(g.posx), Math.trunc(g.posy - 60)), [0, 0, 0])) {
+      directions[1] = 1;
+    }
+  }
+  if ((g.posx - 20) >= 0) {
+    if (Surface.isColorEqual(moveimage.getAt(Math.trunc(g.posx - 20), Math.trunc(g.posy - 80)), [0, 0, 0])) {
+      directions[2] = 1;
+    }
+  }
+  if ((g.posx < 600) && (g.posx >= 0)) {
+    if (Surface.isColorEqual(moveimage.getAt(Math.trunc(g.posx), Math.trunc(g.posy - 100)), [0, 0, 0])) {
+      directions[3] = 1;
+    }
+  }
+  return directions;
+}
+
+function draw() { // Pygame Zero draw function
+  screen.blit('header', [0, 0]);
+  screen.blit('colourmap', [0, 80]);
+  let piDotsLeft = 0;
+  for (let a of piDots) {
+    if (a.status === 0) {
+      a.draw();
+      piDotsLeft += 1;
+    }
+    if (a.collidepoint([player.posx, player.posy])) {
+      if (a.status === 0) {
+        if (a.type === 2) {
+          for (let g of flames) {
+            g.status = 1200;
+          }
+        }
+        else {
+          player.score += 10;
+        }
+      }
+      a.status = 1;
+    }
+  }
+  if (piDotsLeft === 0) {
+    player.status = 2;
+  }
+  drawFlames();
+  getPlayerImage();
+  player.draw();
+  drawLives();
+  screen.draw.text("LEVEL " + level, {
+    topleft: [10, 10],
+    owidth: 0.5,
+    ocolor: [0, 0, 255],
+    color: [255, 255, 0],
+    fontsize: 40
+  });
+  screen.draw.text(player.score.toFixed(0), {
+    topright: [590, 20],
+    owidth: 0.5,
+    ocolor: [255, 255, 255],
+    color: [0, 64, 255],
+    fontsize: 60
+  });
+  if (player.status === 3) {
+    drawCentreText("GAME OVER");
+  }
+  if (player.status === 2) {
+    drawCentreText("LEVEL CLEARED!\nPress Enter or Button A\nto Continue");
+  }
+  if (player.status === 1) {
+    drawCentreText("CAUGHT!\nPress Enter or Button A\nto Continue");
+  }
+}
+
+function drawCentreText(t) {
+  screen.draw.text(t, {
+    center: [300, 434],
+    owidth: 0.5,
+    ocolor: [255, 255, 255],
+    color: [255, 64, 0],
+    fontsize: 60
+  });
+}
+
+function update() { // Pygame Zero update function
+  if (player.status === 0) {
+    if (moveFlamesFlag === 4) {
+      moveFlames();
+    }
+    for (let g of flames) {
+      if (g.status > 0) {
+        g.status -= 1;
+      }
+      if (g.collidepoint([player.posx, player.posy])) {
+        if (g.status > 0) {
+          player.score += 100;
+          animate(g, 1 / SPEED, {pos: [290, 370]}, 'linear', flagMoveFlames);
+        }
+        else {
+          player.lives -= 1;
+          sounds.pi2.play();
+          if (player.lives === 0) {
+            player.status = 3;
+            music.fadeout(3);
+          }
+          else {
+            player.status = 1;
+          }
+        }
+      }
+    }
+    if (player.inputActive) {
+      checkInput(player);
+      checkMovePoint(player);
+      if ((player.movex !== 0) || (player.movey !== 0)) {
+        inputLock();
+        sounds.pi1.play();
+        animate(player, 1 / SPEED, {pos: [player.posx + player.movex, player.posy + player.movey]}, 'linear', inputUnLock);
+      }
+    }
+  }
+  if (player.status === 1) {
+    if (checkInput(player) === 1) {
+      player.status = 0;
+      player.posx = 290;
+      player.posy = 570;
+    }
+  }
+  if (player.status === 2) {
+    if (checkInput(player) === 1) {
+      init();
+    }
+  }
+}
+
+var moveimage, dotimage, player, level, piDots, moveFlamesFlag, flames;
+
+function reset() {
+  Joystick.init();
+
+  screen.blit('pimanmovemap', [0, 0]);
+  moveimage = screen.getSurface(0, 0, images['pimanmovemap'].width, images['pimanmovemap'].height);
+
+  screen.blit('pimandotmap', [0, 0]);
+  dotimage = screen.getSurface(0, 0, images['pimandotmap'].width, images['pimandotmap'].height);
+
+  player = new Actor("piman_o"); // Load in the player Actor image
+  player.score = 0;
+  player.lives = 3;
+  level = 0;
+
+  init();
+}
+
+function init() {
+  initDots();
+  initFlames();
+  player.posx = 290;
+  player.posy = 570;
+  player.status = 0;
+  inputUnLock();
+  level += 1;
+  music.play("pm1");
+  music.set_volume(0.2);
+}
+
+function drawLives() {
+  for (let l = 0; l < player.lives; l++) {
+    screen.blit("piman_o", [10 + (l * 32), 40]);
+  }
+}
+
+function getPlayerImage() {
+  let today = (Date.now() * 1000) % 1000000,
+      tc = today % (500000 / SPEED) / (100000 / SPEED);
+  if ((tc > 2.5) && ((player.movex !== 0) || (player.movey !== 0))) {
+    if (player.angle !== 180) {
+      player.name = "piman_c";
+    }
+    else {
+      player.name = "piman_cr";
+    }
+  }
+  else {
+    if (player.angle !== 180) {
+      player.name = "piman_o";
+    }
+    else {
+      player.name = "piman_or";
+    }
+  }
+}
+
+function drawFlames() {
+  for (let g = 0; g < flames.length; g++) {
+    if (flames[g].posx > player.posx) {
+      if ((flames[g].status > 200) || ((flames[g].status > 1) && ((flames[g].status % 2) === 0))) {
+        flames[g].name = "flame" + (g + 1) + "dark";
+      }
+      else {
+        flames[g].name = "flame" + (g + 1) + "r";
+      }
+    }
+    else {
+      if ((flames[g].status > 200) || ((flames[g].status > 1) && ((flames[g].status % 2) === 0))) {
+        flames[g].name = "flame" + (g + 1) + "dark";
+      }
+      else {
+        flames[g].name = "flame" + (g + 1);
+      }
+    }
+    flames[g].draw();
+  }
+}
+
+function moveFlames() {
+  const dmoves = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+  moveFlamesFlag = 0;
+  for (let g = 0; g < flames.length; g++) {
+    let dirs = getPossibleDirection(flames[g]),
+        d, rd;
+    if (inTheCentre(flames[g])) {
+      flames[g].dir = 3;
+    }
+    else {
+      if (g === 0) {
+        followPlayer(g, dirs);
+      }
+      if (g === 1) {
+        ambushPlayer(g, dirs);
+      }
+    }
+
+    if ((dirs[flames[g].dir] === 0) || (getRandomInteger(0, 51) === 0)) {
+      d = -1;
+      while (d === -1) {
+        rd = getRandomInteger(0, 4);
+        if (aboveCentre(flames[g]) && (rd === 1)) {
+          rd = 0;
+        }
+        if (dirs[rd] === 1) {
+          d = rd;
+        }
+      }
+      flames[g].dir = d;
+    }
+    animate(flames[g], 1 / SPEED, {pos: [flames[g].posx + (dmoves[flames[g].dir][0] * 20), flames[g].posy + (dmoves[flames[g].dir][1] * 20)]}, 'linear', flagMoveFlames);
+  }
+}
+
+function followPlayer(g, dirs) {
+  let d = flames[g].dir;
+  if ((d === 1) || (d === 3)) {
+    if ((player.posx > flames[g].posx) && (dirs[0] === 1)) {
+      flames[g].dir = 0;
+    }
+    if ((player.posx < flames[g].posx) && (dirs[2] === 1)) {
+      flames[g].dir = 2;
+    }
+  }
+  if ((d === 0) || (d === 2)) {
+    if ((player.posy > flames[g].posy) && (dirs[1] === 1) && (!aboveCentre(flames[g]))) {
+      flames[g].dir = 1;
+    }
+    if ((player.posy < flames[g].posy) && (dirs[3] === 1)) {
+      flames[g].dir = 3;
+    }
+  }
+}
+
+function ambushPlayer(g, dirs) {
+  if ((player.movex > 0) && (dirs[0] === 1)) {
+    flames[g].dir = 0;
+  }
+  if ((player.movex < 0) && (dirs[2] === 1)) {
+    flames[g].dir = 2;
+  }
+
+  if ((player.movey > 0) && (dirs[1] === 1) && (!aboveCentre(flames[g]))) {
+    flames[g].dir = 1;
+  }
+  if ((player.movey < 0) && (dirs[3] === 1)) {
+    flames[g].dir = 3;
+  }
+}
+
+function inTheCentre(ga) {
+  if ((ga.posx > 220) && (ga.posx < 380) && (ga.posy > 320) && (ga.posy < 420)) {
+    return true;
+  }
+  return false;
+}
+
+function aboveCentre(ga) {
+  if ((ga.posx > 220) && (ga.posx < 380) && (ga.posy > 300) && (ga.posy < 320)) {
+    return true;
+  }
+  return false;
+}
+
+function flagMoveFlames() {
+  moveFlamesFlag += 1;
+}
+
+function flameCollided(ga, gn) {
+  for (let g = 0; g < flames.length; g++) {
+    if (flames[g].colliderect(ga) && (g !== gn)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function initDots() {
+  piDots = [];
+  let x = 0,
+      y, d, dot;
+  while (x < 30) {
+    y = 0;
+    while (y < 29) {
+      d = checkDotPoint(10 + (x * 20), 10 + (y * 20));
+      if (d === 1) {
+        dot = new Actor("dot");
+        dot.pos = [10 + (x * 20), 90 + (y * 20)];
+        dot.status = 0;
+        dot.type = 1;
+        piDots.push(dot);
+      }
+      if (d === 2) {
+        dot = new Actor("power");
+        dot.pos = [10 + (x * 20), 90 + (y * 20)];
+        dot.status = 0;
+        dot.type = 2;
+        piDots.push(dot);
+      }
+      y += 1;
+    }
+    x += 1;
+  }
+}
+
+function initFlames() {
+  moveFlamesFlag = 4;
+  flames = [];
+  for (let g = 0; g < 4; g++) {
+    let flame = new Actor("flame" + (g + 1));
+    flame.pos = [270 + (g * 20), 370];
+    flame.dir = getRandomInteger(0, 4);
+    flame.status = 0;
+    flames.push(flame);
+  }
+}
+
+function inputLock() {
+  player.inputActive = false;
+}
+
+function inputUnLock() {
+  player.movex = 0;
+  player.movey = 0;
+  player.inputActive = true;
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
