@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>amazeballs2</title>
+  <script src="../../jsgame0.js"></script>
+  <script id="mapdata" type="application/json">
+{ "height":30,
+ "infinite":false,
+ "layers":[
+        {
+         "data":[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 1, 2, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 2, 1, 2, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 2, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 2, 1, 2, 1, 2, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 2, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2, 1, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2, 2, 1, 2, 2, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 2, 1, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 2, 1, 1, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 2, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 2, 1, 2, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 1, 2, 1, 2, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 3, 1, 1, 2, 2, 1, 2, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+         "height":30,
+         "id":2,
+         "name":"Tile Layer 1",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":30,
+         "x":0,
+         "y":0
+        }],
+ "nextlayerid":3,
+ "nextobjectid":1,
+ "orientation":"isometric",
+ "renderorder":"right-down",
+ "tiledversion":"1.2.1",
+ "tileheight":32,
+ "tilesets":[
+        {
+         "firstgid":1,
+         "source":"BasicTiles.tsx"
+        }],
+ "tilewidth":64,
+ "type":"map",
+ "version":1.2,
+ "width":30
+}
+  </script>
+  <script id="tileset" type="application/json">
+{ "columns":0,
+ "grid":
+    {
+     "height":1,
+     "orientation":"orthogonal",
+     "width":1
+    },
+ "margin":0,
+ "name":"BasicTiles",
+ "spacing":0,
+ "tilecount":3,
+ "tiledversion":"1.2.1",
+ "tileheight":64,
+ "tiles":[
+        {
+         "id":0,
+         "image":"..\/..\/Part 1\/images\/map1c.png",
+         "imageheight":34,
+         "imagewidth":64
+        },
+        {
+         "id":1,
+         "image":"..\/..\/Part 1\/images\/map2c.png",
+         "imageheight":64,
+         "imagewidth":64
+        },
+        {
+         "id":2,
+         "image":"..\/images\/map3c.png",
+         "imageheight":34,
+         "imagewidth":64
+        }],
+ "tilewidth":64,
+ "type":"tileset",
+ "version":1.2
+}
+  </script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+.hidden {
+  display: none;
+}
+#original {
+  margin-left: 1em;
+}
+  </style>
+</head>
+
+<body>
+<section id="imageLoader" class="hidden">
+  <img class="hidden" src="images/ball0.png" alt="ball0" data-name="ball0">
+  <img class="hidden" src="images/ball1.png" alt="ball1" data-name="ball1">
+  <img class="hidden" src="images/ball2.png" alt="ball2" data-name="ball2">
+  <img class="hidden" src="images/ball3.png" alt="ball3" data-name="ball3">
+  <img class="hidden" src="images/ball4.png" alt="ball4" data-name="ball4">
+  <img class="hidden" src="images/ball5.png" alt="ball5" data-name="ball5">
+  <img class="hidden" src="images/ball6.png" alt="ball6" data-name="ball6">
+  <img class="hidden" src="images/ball7.png" alt="ball7" data-name="ball7">
+  <img class="hidden" src="images/map1c.png" alt="map1c" data-name="map1c">
+  <img class="hidden" src="images/map2c.png" alt="map2c" data-name="map2c">
+  <img class="hidden" src="images/map3c.png" alt="map3c" data-name="map3c">
+  <img class="hidden" src="images/title.png" alt="title" data-name="title">
+</section>
+
+<main>
+<h1>amazeballs2</h1>
+
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
+
+<h2>Attribution</h2>
+
+<p><a href="https://magpi.raspberrypi.com/books/retro-gaming">Retro Gaming with Raspberry Pi, pages 106 - 111</a>.</p>
+
+<p>Licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</a>.</p>
+
+<h2>Original Python code</h2>
+
+<pre id="original"><code>
+import pgzrun
+import json
+import os
+
+def loadmap(mp):
+    with open(mp) as json_data:
+        d = json.load(json_data)
+    mapdata = {&quot;width&quot;:d[&quot;width&quot;], &quot;height&quot;:d[&quot;height&quot;]}
+    rawdata = d[&quot;layers&quot;][0][&quot;data&quot;]
+    mapdata[&quot;data&quot;] = []
+    for x in range(0, mapdata[&quot;width&quot;]):
+        st = x*mapdata[&quot;width&quot;]
+        mapdata[&quot;data&quot;].append(rawdata[st:st+mapdata[&quot;height&quot;]])
+
+    tileset = &quot;maps/&quot; + d[&quot;tilesets&quot;][0][&quot;source&quot;].replace(&quot;.tsx&quot;,&quot;.json&quot;)
+    with open(tileset) as json_data:
+        t = json.load(json_data)
+
+    mapdata[&quot;tiles&quot;] = t[&quot;tiles&quot;]
+    for tile in range(0,len(mapdata[&quot;tiles&quot;])):
+        path = mapdata[&quot;tiles&quot;][tile][&quot;image&quot;]
+        mapdata[&quot;tiles&quot;][tile][&quot;image&quot;] = os.path.basename(path)
+        mapdata[&quot;tiles&quot;][tile][&quot;id&quot;] = mapdata[&quot;tiles&quot;][tile][&quot;id&quot;]+1
+    return mapdata
+
+player = {&quot;x&quot;:3, &quot;y&quot;:3, &quot;frame&quot;:0, &quot;sx&quot;:0, &quot;sy&quot;:96,
+          &quot;moveX&quot;:0, &quot;moveY&quot;:0, &quot;queueX&quot;:0, &quot;queueY&quot;:0,
+          &quot;moveDone&quot;:True, &quot;movingNow&quot;:False, &quot;animCounter&quot;:0}
+OFFSETX = 368
+OFFSETY = 300
+timer = 0
+mazeSolved = False
+
+mapData = loadmap(&quot;maps/map1.json&quot;)
+
+def draw(): # Pygame Zero draw function
+    screen.fill((0, 0, 0))
+    drawMap()
+    screen.blit(&#x27;title&#x27;, (0, 0))
+    screen.draw.text(&quot;TIME: &quot;+str(timer) , topleft=(20, 80), owidth=0.5, ocolor=(255,255,0), color=(255,0,0) , fontsize=60)
+    if mazeSolved:
+        screen.draw.text(&quot;MAZE SOLVED in &quot; + str(timer) + &quot; seconds!&quot; , center=(400, 450), owidth=0.5, ocolor=(0,0,0), color=(0,255,0) , fontsize=60)
+
+
+def update(): # Pygame Zero update function
+    global player, timer
+    if player[&quot;moveDone&quot;] == True:
+        if keyboard.left: doMove(player, -1, 0)
+        if keyboard.right: doMove(player, 1, 0)
+        if keyboard.up: doMove(player, 0, -1)
+        if keyboard.down: doMove(player, 0, 1)
+    updateBall(player)
+
+def timerTick():
+    global timer
+    if not mazeSolved:
+        timer += 1
+
+def drawMap():
+    psx = OFFSETX
+    psy = OFFSETY-32
+    mx = psx - player[&quot;sx&quot;]
+    my = psy - player[&quot;sy&quot;]+32
+
+    for x in range(player[&quot;x&quot;]-12, player[&quot;x&quot;]+16):
+        for y in range(player[&quot;y&quot;]-12, player[&quot;y&quot;]+16):
+            if onMap(x,y):
+                b = mapData[&quot;data&quot;][y][x]
+                td = findData(mapData[&quot;tiles&quot;], &quot;id&quot;, b)
+                block = td[&quot;image&quot;]
+                bheight =  td[&quot;imageheight&quot;]-34
+                bx = (x*32)-(y*32) + mx
+                by = (y*16)+(x*16) + my
+                if -32 &lt;= bx &lt; 800 and 100 &lt;= by &lt; 620:
+                    screen.blit(block, (bx, by - bheight))
+                if x == player[&quot;x&quot;] and y == player[&quot;y&quot;]:
+                    screen.blit(&quot;ball&quot;+str(player[&quot;frame&quot;]), (psx, psy))
+
+def findData(lst, key, value):
+    for i, dic in enumerate(lst):
+        if dic[key] == value:
+            return dic
+    return -1
+
+def onMap(x,y):
+    if 0 &lt;= x &lt; mapData[&quot;width&quot;] and 0 &lt;= y &lt; mapData[&quot;height&quot;]:
+        return True
+    return False
+
+def doMove(p, x, y):
+    global mazeSolved
+    if onMap(p[&quot;x&quot;]+x, p[&quot;y&quot;]+y):
+        mt = mapData[&quot;data&quot;][p[&quot;y&quot;]+y][p[&quot;x&quot;]+x]
+        if mt == 1 or mt == 3:
+            p.update({&quot;queueX&quot;:x, &quot;queueY&quot;:y, &quot;moveDone&quot;:False})
+            if mt == 3:
+                mazeSolved = True
+
+def updateBall(p):
+    if p[&quot;movingNow&quot;]:
+        if p[&quot;moveX&quot;] == -1: moveP(p,-1,-0.5)
+        if p[&quot;moveX&quot;] == 1: moveP(p,1,0.5)
+        if p[&quot;moveY&quot;] == -1: moveP(p,1,-0.5)
+        if p[&quot;moveY&quot;] == 1: moveP(p,-1,0.5)
+    p[&quot;animCounter&quot;] += 1
+    if p[&quot;animCounter&quot;] == 4:
+        p[&quot;animCounter&quot;] = 0
+        p[&quot;frame&quot;] += 1
+        if p[&quot;frame&quot;] &gt; 7:
+            p[&quot;frame&quot;] = 0
+        if p[&quot;frame&quot;] == 4:
+            if p[&quot;moveDone&quot;] == False:
+                if p[&quot;queueX&quot;] != 0 or p[&quot;queueY&quot;] !=0:
+                    p.update({&quot;moveX&quot;:p[&quot;queueX&quot;], &quot;moveY&quot;:p[&quot;queueY&quot;], &quot;queueX&quot;:0, &quot;queueY&quot;:0, &quot;movingNow&quot;: True})
+            else:
+                p.update({&quot;moveDone&quot;:True, &quot;moveX&quot;:0, &quot;moveY&quot;:0, &quot;movingNow&quot;:False})
+
+        if p[&quot;frame&quot;] == 7 and p[&quot;moveDone&quot;] == False and p[&quot;movingNow&quot;] == True:
+            p[&quot;x&quot;] += p[&quot;moveX&quot;]
+            p[&quot;y&quot;] += p[&quot;moveY&quot;]
+            p[&quot;moveDone&quot;] = True
+
+def moveP(p,x,y):
+    p[&quot;sx&quot;] += x
+    p[&quot;sy&quot;] += y
+
+clock.schedule_interval(timerTick, 1.0)
+pgzrun.go()
+</code></pre>
+</main>
+
+<script>
+const OFFSETX = 368;
+const OFFSETY = 300;
+
+function loadmap() {
+  let d = JSON.parse(document.querySelector('#mapdata').textContent),
+      t = JSON.parse(document.querySelector('#tileset').textContent),
+      mapdata = {width: d["width"], height: d["height"]},
+      rawdata = d["layers"][0]["data"],
+      st, path;
+  mapdata["data"] = [];
+  for (let x = 0; x < mapdata["width"]; x++) {
+    st = x * mapdata["width"];
+    mapdata["data"].push(rawdata.slice(st, st + mapdata["height"]));
+  }
+
+  mapdata["tiles"] = t["tiles"];
+  for (let tile = 0; tile < mapdata["tiles"].length; tile++) {
+    path = mapdata["tiles"][tile]["image"];
+    mapdata["tiles"][tile]["image"] = path.substring(path.lastIndexOf('/') + 1, path.length - 4);
+    mapdata["tiles"][tile]["id"] = mapdata["tiles"][tile]["id"] + 1;
+  }
+  return mapdata;
+}
+
+var player, timer, mazeSolved, mapData;
+
+function reset() {
+  player = {
+    x: 3,
+    y: 3,
+    frame: 0,
+    sx: 0,
+    sy: 96,
+    moveX: 0,
+    moveY: 0,
+    queueX: 0,
+    queueY: 0,
+    moveDone: true,
+    movingNow: false,
+    animCounter: 0
+  };
+  timer = 0;
+  mazeSolved = false;
+
+  mapData = loadmap();
+  clock.schedule_interval(timerTick, 1.0);
+}
+
+function draw() { // Pygame Zero draw function
+  screen.fill([0, 0, 0]);
+  drawMap();
+  screen.blit('title', [0, 0]);
+  screen.draw.text("TIME: " + timer, {
+    topleft: [20, 80],
+    owidth: 0.5,
+    ocolor: [255, 255, 0],
+    color: [255, 0, 0],
+    fontsize: 60
+  });
+  if (mazeSolved) {
+    screen.draw.text("MAZE SOLVED in " + timer + " seconds!", {
+      center: [400, 450],
+      owidth: 0.5,
+      ocolor: [0, 0, 0],
+      color: [0, 255, 0],
+      fontsize: 60
+    });
+  }
+}
+
+function update() { // Pygame Zero update function
+  if (player["moveDone"]) {
+    if (keyboard[keys.LEFT]) {
+      doMove(player, -1, 0);
+    }
+    if (keyboard[keys.RIGHT]) {
+      doMove(player, 1, 0);
+    }
+    if (keyboard[keys.UP]) {
+      doMove(player, 0, -1);
+    }
+    if (keyboard[keys.DOWN]) {
+      doMove(player, 0, 1);
+    }
+  }
+  updateBall(player);
+}
+
+function timerTick() {
+  if (!mazeSolved) {
+    timer += 1;
+  }
+}
+
+function drawMap() {
+  let psx = OFFSETX,
+      psy = OFFSETY - 32,
+      mx = psx - player["sx"],
+      my = psy - player["sy"] + 32,
+      b, td, block, bheight, bx, by;
+
+  for (let x = player["x"] - 12; x < (player["x"] + 16); x++) {
+    for (let y = player["y"] - 12; y < (player["y"] + 16); y++) {
+      if (onMap(x, y)) {
+        b = mapData["data"][y][x];
+        td = findData(mapData["tiles"], "id", b);
+        block = td["image"];
+        bheight =  td["imageheight"] - 34;
+        bx = (x * 32) - (y * 32) + mx;
+        by = (y * 16) + (x * 16) + my;
+        if ((-32 <= bx) && (bx < 800) && (100 <= by) && (by < 620)) {
+          screen.blit(block, [bx, by - bheight]);
+        }
+        if ((x === player["x"]) && (y === player["y"])) {
+          screen.blit("ball" + player["frame"], [psx, psy]);
+        }
+      }
+    }
+  }
+}
+
+function findData(lst, key, value) {
+  let i = 0;
+  for (let dic of lst) {
+    if (dic[key] === value) {
+      return dic;
+    }
+    i++;
+  }
+  return -1;
+}
+
+function onMap(x, y) {
+  if ((0 <= x) && (x < mapData["width"]) && (0 <= y) && (y < mapData["height"])) {
+    return true;
+  }
+  return false;
+}
+
+function doMove(p, x, y) {
+  if (onMap(p["x"] + x, p["y"] + y)) {
+    let mt = mapData["data"][p["y"]+y][p["x"]+x];
+    if ((mt === 1) || (mt === 3)) {
+      p["queueX"] = x;
+      p["queueY"] = y;
+      p["moveDone"] = false;
+      if (mt === 3) {
+        mazeSolved = true;
+      }
+    }
+  }
+}
+
+function updateBall(p) {
+  if (p["movingNow"]) {
+    if (p["moveX"] === -1) {
+      moveP(p, -1, -0.5);
+    }
+    if (p["moveX"] === 1) {
+      moveP(p, 1, 0.5);
+    }
+    if (p["moveY"] === -1) {
+      moveP(p, 1, -0.5);
+    }
+    if (p["moveY"] === 1) {
+      moveP(p, -1, 0.5);
+    }
+  }
+  p["animCounter"] += 1;
+  if (p["animCounter"] === 4) {
+    p["animCounter"] = 0;
+    p["frame"] += 1;
+    if (p["frame"] > 7) {
+      p["frame"] = 0;
+    }
+    if (p["frame"] === 4) {
+      if (!p["moveDone"]) {
+        if ((p["queueX"] !== 0) || (p["queueY"] !== 0)) {
+          p["moveX"] = p["queueX"];
+          p["moveY"] = p["queueY"];
+          p["queueX"] = 0;
+          p["queueY"] = 0;
+          p["movingNow"] = true;
+        }
+      }
+      else {
+        p["moveDone"] = true;
+        p["moveX"] = 0;
+        p["moveY"] = 0;
+        p["movingNow"] = false;
+      }
+    }
+
+    if ((p["frame"] === 7) && (!p["moveDone"]) && p["movingNow"]) {
+      p["x"] += p["moveX"];
+      p["y"] += p["moveY"];
+      p["moveDone"] = true;
+    }
+  }
+}
+
+function moveP(p, x, y) {
+  p["sx"] += x;
+  p["sy"] += y;
+}
+
+window.addEventListener('load', (event) => {
+  screen.init();
+});
+</script>
+</body>
+
+</html>
