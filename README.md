@@ -1,6 +1,7 @@
 Tutorial code for the Pygame Zero chapters of the Retro Gaming with Raspberry Pi book
 
 [Read the Second Edition](https://magpi.raspberrypi.com/books/retro-gaming-raspberry-pi-2nd-edition)
+
 [Read the First Edition](https://magpi.raspberrypi.com/books/retro-gaming)
 
 The Second Edition lacks Scrambled Cat and AmazeBalls.
