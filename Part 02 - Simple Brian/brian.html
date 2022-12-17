@@ -44,6 +44,8 @@ The game screen appears here if your browser supports the Canvas API.
   <button type="button" id="pause">Pause</button>
 </section>
 
+<p>Click the buttons or use Q, W, A, S.</p>
+
 <h2>Attribution</h2>
 
 <p><a href="https://magpi.raspberrypi.com/books/retro-gaming-raspberry-pi-2nd-edition">Retro Gaming with Raspberry Pi 2nd Edition, pages 84 - 89</a>.</p>
@@ -386,6 +388,49 @@ function on_mouse_up(pos) {
     }
   }
   if (playButton.collidepoint(pos) && (!gameStarted)) {
+    gameStarted = true;
+    score = 0;
+    gameCountdown = LOOPDELAY;
+  }
+  if (signalScore) {
+    score += 1;
+    gameCountdown = LOOPDELAY;
+    clearButtons();
+    signalScore = false;
+  }
+}
+
+/*
+ * Keyboard support using Q, W, A, S
+ */
+
+function on_key_down(key) {
+  if ((!playingAnimation) && (gameCountdown === 0)) {
+    if (key === keys.Q) {
+      playerInput.push(0);
+      myButtons[0].state = true;
+    }
+    if (key === keys.W) {
+      playerInput.push(1);
+      myButtons[1].state = true;
+    }
+    if (key === keys.A) {
+      playerInput.push(2);
+      myButtons[2].state = true;
+    }
+    if (key === keys.S) {
+      playerInput.push(3);
+      myButtons[3].state = true;
+    }
+    checkPlayerInput();
+  }
+}
+
+function on_key_up(key) {
+  if ((!playingAnimation) && (gameCountdown === 0)) {
+    clearButtons();
+  }
+  if ((key === keys.SPACE) && (!gameStarted)) {
     gameStarted = true;
     score = 0;
     gameCountdown = LOOPDELAY;
