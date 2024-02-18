@@ -385,7 +385,7 @@ function moveTile(tile) {
 
 function checkCollide(tile) {
   for (let t of tileList) {
-    if (tile.colliderect(t) && (tile != t)) {
+    if (tile.colliderect(t) && (tile !== t)) {
       return true;
     }
   }
