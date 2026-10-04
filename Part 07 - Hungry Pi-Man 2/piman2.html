@@ -620,11 +620,9 @@ var moveimage, dotimage, player, level, piDots, moveFlamesFlag, flames;
 function reset() {
   Joystick.init();
 
-  screen.blit('pimanmovemap', [0, 0]);
-  moveimage = screen.getSurface(0, 0, images['pimanmovemap'].width, images['pimanmovemap'].height);
+  moveimage = Surface.fromImage('pimanmovemap');
 
-  screen.blit('pimandotmap', [0, 0]);
-  dotimage = screen.getSurface(0, 0, images['pimandotmap'].width, images['pimandotmap'].height);
+  dotimage = Surface.fromImage('pimandotmap');
 
   player = new Actor("piman_o"); // Load in the player Actor image
   player.score = 0;
